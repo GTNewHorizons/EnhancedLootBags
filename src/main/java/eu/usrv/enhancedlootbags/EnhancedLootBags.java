@@ -39,7 +39,7 @@ import eu.usrv.yamcore.auxiliary.IngameErrorLog;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 
 
-@Mod( modid = EnhancedLootBags.MODID, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.2.1291,);required-after:YAMCore@[0.5.62,);" )
+@Mod( modid = EnhancedLootBags.MODID, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.2.1291,);required-after:YAMCore@[0.5.63,);" )
 public class EnhancedLootBags
 {
 	public static final String MODID = "enhancedlootbags";
