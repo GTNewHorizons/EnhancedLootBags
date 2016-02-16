@@ -1,0 +1,16 @@
+[
+{
+  "modid": "enhancedlootbags",
+  "name": "Enhanced LootBags",
+  "description": "LootBags. As they should be",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Namikon"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
