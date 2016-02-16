@@ -31,12 +31,12 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
+import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.enhancedlootbags.net.ELBDispatcher;
 import eu.usrv.enhancedlootbags.proxy.CommonProxy;
 import eu.usrv.enhancedlootbags.server.LootBagCommand;
 import eu.usrv.yamcore.auxiliary.IngameErrorLog;
-import eu.usrv.enhancedlootbags.net.ELBDispatcher;
 import eu.usrv.yamcore.auxiliary.LogHelper;
-import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
 
 
 @Mod( modid = EnhancedLootBags.MODID, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.2.1291,);required-after:YAMCore@[0.5.62,);" )
