@@ -3,3 +3,7 @@
 .settings/
 .checkstyle
 bin/
+eclipse/
+.gradle/
+gradle/
+/gradlew.bat

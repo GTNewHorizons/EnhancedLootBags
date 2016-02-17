@@ -40,13 +40,9 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
-
-import eu.usrv.yamcore.auxiliary.TextFormatHelper;
-import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.core.items.ItemLootBag;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups;
@@ -54,7 +50,9 @@ import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroupsFactory;
 import eu.usrv.enhancedlootbags.net.msg.LootBagClientSyncMessage;
+import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 import eu.usrv.yamcore.auxiliary.LogHelper;
+import eu.usrv.yamcore.auxiliary.TextFormatHelper;
 import eu.usrv.yamcore.persisteddata.PersistedDataBase;
 
 
@@ -149,7 +147,11 @@ public class LootGroupsHandler
 
 	public LootGroupsHandler( File pConfigBaseDir )
 	{
-		_mConfigFileName = String.format( "config/EnhancedLootBags/LootBags.xml" );
+		File tConfDir = new File( pConfigBaseDir, "EnhancedLootBags" );
+		if ( !tConfDir.exists() )
+			tConfDir.mkdirs();
+		
+		_mConfigFileName = new File( tConfDir, "LootBags.xml" ).toString();
 	}
 
 	/**
