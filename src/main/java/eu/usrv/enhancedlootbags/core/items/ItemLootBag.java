@@ -23,6 +23,8 @@ import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
@@ -34,13 +36,13 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-import eu.usrv.yamcore.auxiliary.ItemDescriptor;
-
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.GuiHandler;
+import eu.usrv.enhancedlootbags.StatHelper;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
+import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 
@@ -58,6 +60,24 @@ public class ItemLootBag extends Item
 		_mLGHandler = pLGHandler;
 	}
 
+	@Override
+	public boolean isBookEnchantable( ItemStack stack, ItemStack book )
+	{
+		return true;
+	}
+	
+	@Override
+	public int getItemEnchantability( ItemStack stack )
+	{
+		return 15;
+	}
+	
+	@Override
+    public int getItemEnchantability()
+    {
+        return 15;
+    }
+	
 	@SideOnly( Side.CLIENT )
 	public void registerIcons( IIconRegister pIconRegister )
 	{
@@ -78,19 +98,23 @@ public class ItemLootBag extends Item
 	@Override
 	public String getItemStackDisplayName( ItemStack pStack )
 	{
+		String tReturn = StatHelper.get( "string.lootbag_templatename" );
+		String tInnerName = "?Error";
+
 		if( pStack.getItemDamage() == 0 )
-			return "LootBag (Default)";
+			tInnerName = StatHelper.get( "string.default" );
 		else
 		{
 			LootGroup tGrp = _mLGHandler.getGroupByIDClient( pStack.getItemDamage() );
-			return String.format( "LootBag (%s)", tGrp == null ? "Error" : tGrp.getGroupName() );
+			tInnerName = tGrp == null ? "Error" : tGrp.getGroupName();
 		}
+
+		return String.format( tReturn, tInnerName );
 	}
 
 	@SideOnly( Side.CLIENT )
 	public void getSubItems( Item par1, CreativeTabs par2CreativeTabs, List par3List )
 	{
-		par3List.add( new ItemStack( this, 1, 0 ) );
 		for( LootGroup tGrp : _mLGHandler.getLootGroupsClient().getLootTable() )
 			par3List.add( new ItemStack( this, 1, tGrp.getGroupID() ) );
 	}
@@ -114,7 +138,8 @@ public class ItemLootBag extends Item
 			}
 
 			int tGroupID = pStack.getItemDamage();
-			LootGroup tGrp = _mLGHandler.getMergedGroupFromID( tGroupID );
+			int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel( Enchantment.fortune.effectId, pStack );
+			LootGroup tGrp = _mLGHandler.getMergedGroupFromID( tGroupID, tFortuneLevel );
 			if( tGrp != null )
 			{
 				int q = tGrp.getMinItems();
@@ -150,7 +175,7 @@ public class ItemLootBag extends Item
 			}
 			else
 			{
-				PlayerChatHelper.SendNotifyWarning( pPlayer, "This lootbag seems to be damaged, sorry about that" );
+				PlayerChatHelper.SendNotifyWarning( pPlayer, StatHelper.get( "string.sorry_damaged" ) );
 			}
 		}
 		return pStack;

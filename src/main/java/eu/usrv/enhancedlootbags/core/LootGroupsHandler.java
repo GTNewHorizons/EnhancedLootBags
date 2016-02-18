@@ -147,10 +147,10 @@ public class LootGroupsHandler
 
 	public LootGroupsHandler( File pConfigBaseDir )
 	{
-		File tConfDir = new File( pConfigBaseDir, "EnhancedLootBags" );
-		if ( !tConfDir.exists() )
+		File tConfDir = new File( pConfigBaseDir, EnhancedLootBags.NICEFOLDERNAME );
+		if( !tConfDir.exists() )
 			tConfDir.mkdirs();
-		
+
 		_mConfigFileName = new File( tConfDir, "LootBags.xml" ).toString();
 	}
 
@@ -176,13 +176,13 @@ public class LootGroupsHandler
 
 	private HashMap<Integer, LootGroup> _mBufferedLootGroups = new HashMap<Integer, LootGroup>();
 
-	public LootGroup getMergedGroupFromID( int pGroupID )
+	public LootGroup getMergedGroupFromID( int pGroupID, int pFortuneLevel )
 	{
 		LootGroup tReturnGroup = null;
 		LootGroup tTargetGroup = getGroupByID( pGroupID );
 		if( tTargetGroup != null )
 		{
-			if( !tTargetGroup.getCombineWithTrash() )
+			if( !tTargetGroup.getCombineWithTrash() || (EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3) )
 				tReturnGroup = tTargetGroup;
 			else
 			{
@@ -333,8 +333,13 @@ public class LootGroupsHandler
 	 * }
 	 */
 
-	public static Item mLootBagItem = null;
-
+	private static Item mLootBagItem = null;
+	
+	public static Item getLootBagItem()
+	{
+		return mLootBagItem;
+	}
+	
 	public void registerBagItem()
 	{
 		mLootBagItem = new ItemLootBag( this );

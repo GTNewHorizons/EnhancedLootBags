@@ -20,6 +20,8 @@ package eu.usrv.enhancedlootbags;
 
 import java.util.Random;
 
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -30,7 +32,11 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+import eu.usrv.enhancedlootbags.config.ELBConfig;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
 import eu.usrv.enhancedlootbags.net.ELBDispatcher;
 import eu.usrv.enhancedlootbags.proxy.CommonProxy;
@@ -39,12 +45,16 @@ import eu.usrv.yamcore.auxiliary.IngameErrorLog;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 
 
-@Mod( modid = EnhancedLootBags.MODID, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.2.1291,);required-after:YAMCore@[0.5.63,);" )
+@Mod( modid = EnhancedLootBags.MODID, name = EnhancedLootBags.MODNAME, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.2.1291,);required-after:YAMCore@[0.5.63,);" )
 public class EnhancedLootBags
 {
+	public static CreativeTabs ELBCreativeTab;
 	public static final String MODID = "enhancedlootbags";
 	public static final String VERSION = "GRADLETOKEN_VERSION";
+	public static final String MODNAME = "Enhanced LootBags";
+	public static final String NICEFOLDERNAME = "EnhancedLootBags";
 	public static LootGroupsHandler LootGroupHandler = null;
+	public static ELBConfig ELBCfg = null;
 	public static IngameErrorLog AdminLogonErrors = null;
 	public static LogHelper Logger = new LogHelper( MODID );
 	public static ELBDispatcher NW;
@@ -60,6 +70,10 @@ public class EnhancedLootBags
 	public void PreInit( FMLPreInitializationEvent pEvent )
 	{
 		Rnd = new Random( System.currentTimeMillis() );
+		ELBCfg = new ELBConfig( pEvent.getModConfigurationDirectory(), NICEFOLDERNAME, MODID );
+		if (!ELBCfg.LoadConfig())
+			Logger.error(String.format("%s could not load its config file. Things are going to be weird!", MODID));
+        
 		AdminLogonErrors = new IngameErrorLog();
 		NW = new ELBDispatcher();
 		NW.registerPackets();
@@ -67,6 +81,18 @@ public class EnhancedLootBags
 		LootGroupHandler = new LootGroupsHandler( pEvent.getModConfigurationDirectory() );
 		LootGroupHandler.LoadConfig();
 		LootGroupHandler.registerBagItem();
+
+		ELBCreativeTab = new CreativeTabs( "ELBTab" )
+		{
+			@Override
+			@SideOnly( Side.CLIENT )
+			public Item getTabIconItem()
+			{
+				return LootGroupHandler.getLootBagItem();
+			}
+		};
+
+		LootGroupHandler.getLootBagItem().setCreativeTab( ELBCreativeTab );
 	}
 
 	@EventHandler
@@ -75,6 +101,7 @@ public class EnhancedLootBags
 		FMLCommonHandler.instance().bus().register( AdminLogonErrors );
 		FMLCommonHandler.instance().bus().register( LootGroupHandler );
 		MinecraftForge.EVENT_BUS.register( LootGroupHandler );
+		NetworkRegistry.INSTANCE.registerGuiHandler( this, new GuiHandler() );
 	}
 
 	/**

@@ -1,1 +1,4 @@
-item.lootbag.name=LootBag (%s)
+enhancedlootbags.string.lootbag_templatename=LootBag (%s)
+enhancedlootbags.string.default=Default
+enhancedlootbags.string.sorry_damaged=This LootBag seems to be damaged, sorry about that
+itemGroup.ELBTab=Enhanced LootBags
