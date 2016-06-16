@@ -7,3 +7,8 @@ eclipse/
 .gradle/
 gradle/
 /gradlew.bat
+ELootBags.iml
+ELootBags.ipr
+ELootBags.iws
+*.bat
+gradlew
