@@ -19,7 +19,6 @@ package eu.usrv.enhancedlootbags.core.serializer;
 
 
 import net.minecraft.item.EnumRarity;
-
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
 
@@ -105,12 +104,25 @@ public class LootGroupsFactory
 	}
 
 	/**
-	 * Copies the drop to a new element, without modifiying the original list
+	 * Copies the drop to a new element, without modifying the original list
 	 * 
 	 * @param pSourceDrop
+	 * @param mNewChance New chance/weight of that item, if desired to change.
 	 * @return
 	 */
 	public Drop copyDrop( Drop pSourceDrop )
+	{
+		return copyDrop( pSourceDrop, 1.0D );
+	}
+
+	/**
+	 * Copies the drop to a new element, with changing the weight of the item
+	 * 
+	 * @param pSourceDrop
+	 * @param mNewChance New chance/weight of that item, if desired to change.
+	 * @return
+	 */
+	public Drop copyDrop( Drop pSourceDrop, double mChanceModifier )
 	{
 		Drop tdr = new Drop();
 		tdr.mAmount = pSourceDrop.mAmount;

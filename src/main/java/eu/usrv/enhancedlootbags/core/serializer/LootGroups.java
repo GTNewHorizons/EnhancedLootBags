@@ -19,6 +19,7 @@ package eu.usrv.enhancedlootbags.core.serializer;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -28,6 +29,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+
+import eu.usrv.enhancedlootbags.EnhancedLootBags;
 
 import net.minecraft.item.EnumRarity;
 import net.minecraft.util.IIcon;
@@ -214,6 +217,16 @@ public class LootGroups
 			{
 				return mTag;
 			}
+		}
+
+		/**
+		 * Do NOT run this on a Group you want to save. It will drive you nuts that after each time you load/save
+		 * the items will shuffle randomly around! This is ONLY to mix the trash-merged lootgroups
+		 */
+		public void shuffleLoot()
+		{
+			for( int i = 0; i < EnhancedLootBags.Rnd.nextInt( 10 ); i++ )
+				Collections.shuffle( mDrops );
 		}
 	}
 }

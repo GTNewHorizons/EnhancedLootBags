@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -65,19 +66,19 @@ public class ItemLootBag extends Item
 	{
 		return true;
 	}
-	
+
 	@Override
 	public int getItemEnchantability( ItemStack stack )
 	{
 		return 15;
 	}
-	
+
 	@Override
-    public int getItemEnchantability()
-    {
-        return 15;
-    }
-	
+	public int getItemEnchantability()
+	{
+		return 15;
+	}
+
 	@SideOnly( Side.CLIENT )
 	public void registerIcons( IIconRegister pIconRegister )
 	{
@@ -116,7 +117,17 @@ public class ItemLootBag extends Item
 	public void getSubItems( Item par1, CreativeTabs par2CreativeTabs, List par3List )
 	{
 		for( LootGroup tGrp : _mLGHandler.getLootGroupsClient().getLootTable() )
-			par3List.add( new ItemStack( this, 1, tGrp.getGroupID() ) );
+		{
+			ItemStack s1 = new ItemStack( this, 1, tGrp.getGroupID() );
+			par3List.add( s1 );
+
+			if( EnhancedLootBags.ELBCfg.AllowFortuneBags )
+			{
+				ItemStack s2 = s1.copy();
+				s2.addEnchantment( Enchantment.fortune, 3 );
+				par3List.add( s2 );
+			}
+		}
 	}
 
 	@Override
@@ -274,5 +285,19 @@ public class ItemLootBag extends Item
 
 		// _mLogger.info(String.format("Final returnList contains %d items", tReturnList.size()));
 		return tReturnList;
+	}
+
+	@Override
+	@SideOnly( Side.CLIENT )
+	public void addInformation( ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList, boolean pSomeBooleanValue )
+	{
+		if( EnhancedLootBags.ELBCfg.AllowFortuneBags )
+		{
+			int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel( Enchantment.fortune.effectId, pItemStack );
+			if( tFortuneLevel == 0 )
+				pTooltipList.add( String.format( "%sYou feel that a bit more \"Fortune\" might be a good idea...", EnumChatFormatting.DARK_PURPLE ) );
+			else
+				pTooltipList.add( String.format( "%sYour luck is increased by %d %%", EnumChatFormatting.GOLD, ( tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel ) ) );
+		}
 	}
 }

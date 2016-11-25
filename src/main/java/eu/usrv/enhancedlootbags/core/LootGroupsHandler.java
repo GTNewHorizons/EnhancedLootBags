@@ -186,6 +186,59 @@ public class LootGroupsHandler
 				tReturnGroup = tTargetGroup;
 			else
 			{
+				double tTrashWeightMultiplicator = 1.0D;
+				if (EnhancedLootBags.ELBCfg.AllowFortuneBags)
+					tTrashWeightMultiplicator = tTrashWeightMultiplicator - (0.33D * pFortuneLevel);
+				
+				tReturnGroup = _mBufferedLootGroups.get( pGroupID );
+				if( tReturnGroup == null )
+				{
+					LootGroup tTrashGroup = getGroupByID( 0 );
+					if( tTrashGroup != null )
+					{
+						// Copy the original group
+						LootGroup tMerged = _mLGF.copyLootGroup( tTargetGroup );
+						// Add a copy for each trash loot to the drop list
+
+						for( Drop tDr : tTrashGroup.getDrops() )
+						{
+							tMerged.getDrops().add( _mLGF.copyDrop( tDr, tTrashWeightMultiplicator ) );
+						}
+						
+						// Now shuffle the list a few times, to ensure randomness
+						tMerged.shuffleLoot();
+
+						// Store the new list in our buffer
+						_mBufferedLootGroups.put( pGroupID, tMerged );
+
+						// Set as return group
+						tReturnGroup = tMerged;
+					}
+					else
+					{
+						// _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it",
+						// pGroupID));
+						tReturnGroup = tTargetGroup;
+					}
+				}
+			}
+		}
+		else
+			_mLogger.error( String.format( "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) );
+
+		return tReturnGroup;
+	}
+
+	public LootGroup getMergedGroupFromIDX( int pGroupID, int pFortuneLevel )
+	{
+		LootGroup tReturnGroup = null;
+		LootGroup tTargetGroup = getGroupByID( pGroupID );
+		if( tTargetGroup != null )
+		{
+			if( !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
+				tReturnGroup = tTargetGroup;
+			else
+			{
 				tReturnGroup = _mBufferedLootGroups.get( pGroupID );
 				if( tReturnGroup == null )
 				{
@@ -334,12 +387,12 @@ public class LootGroupsHandler
 	 */
 
 	private static Item mLootBagItem = null;
-	
+
 	public static Item getLootBagItem()
 	{
 		return mLootBagItem;
 	}
-	
+
 	public void registerBagItem()
 	{
 		mLootBagItem = new ItemLootBag( this );
