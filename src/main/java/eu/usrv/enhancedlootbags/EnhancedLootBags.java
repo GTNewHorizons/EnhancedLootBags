@@ -45,7 +45,7 @@ import eu.usrv.yamcore.auxiliary.IngameErrorLog;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 
 
-@Mod( modid = EnhancedLootBags.MODID, name = EnhancedLootBags.MODNAME, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.2.1291,);required-after:YAMCore@[0.5.63,);" )
+@Mod( modid = EnhancedLootBags.MODID, name = EnhancedLootBags.MODNAME, version = EnhancedLootBags.VERSION, dependencies = "required-after:Forge@[10.13.4.1558,);required-after:YAMCore@[0.5.63,);" )
 public class EnhancedLootBags
 {
 	public static CreativeTabs ELBCreativeTab;
