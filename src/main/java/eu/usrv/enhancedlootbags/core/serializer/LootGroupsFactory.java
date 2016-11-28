@@ -19,6 +19,7 @@ package eu.usrv.enhancedlootbags.core.serializer;
 
 
 import net.minecraft.item.EnumRarity;
+import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
 
@@ -112,7 +113,7 @@ public class LootGroupsFactory
 	 */
 	public Drop copyDrop( Drop pSourceDrop )
 	{
-		return copyDrop( pSourceDrop, 1.0D );
+		return copyDrop( pSourceDrop, 0 );
 	}
 
 	/**
@@ -122,11 +123,11 @@ public class LootGroupsFactory
 	 * @param mNewChance New chance/weight of that item, if desired to change.
 	 * @return
 	 */
-	public Drop copyDrop( Drop pSourceDrop, double mChanceModifier )
+	public Drop copyDrop( Drop pSourceDrop, int pFortuneLevel )
 	{
 		Drop tdr = new Drop();
 		tdr.mAmount = pSourceDrop.mAmount;
-		tdr.mChance = pSourceDrop.mChance;
+		tdr.mChance = EnhancedLootBags.LootGroupHandler.recalcWeightByFortune( pSourceDrop.mChance, pFortuneLevel );
 		tdr.mDropID = pSourceDrop.mDropID;
 		tdr.mIsRandomAmount = pSourceDrop.mIsRandomAmount;
 		tdr.mItemName = pSourceDrop.mItemName;

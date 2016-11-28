@@ -88,13 +88,16 @@ public class LootGroups
 		protected boolean mCombineWithTrash;
 
 		@XmlTransient
-		private static int mMaxWeight = -1;
+		private int mMaxWeight = -1;
 
 		public int getMaxWeight()
 		{
 			if( mMaxWeight == -1 )
+			{
+				mMaxWeight = 0;
 				for( Drop tDr : mDrops )
 					mMaxWeight += tDr.mChance;
+			}
 
 			return mMaxWeight;
 		}

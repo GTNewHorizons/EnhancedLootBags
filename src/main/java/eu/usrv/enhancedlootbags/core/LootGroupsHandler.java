@@ -174,23 +174,21 @@ public class LootGroupsHandler
 		_mLootGroups.getLootTable().add( tTrashGroup );
 	}
 
-	private HashMap<Integer, LootGroup> _mBufferedLootGroups = new HashMap<Integer, LootGroup>();
+	private HashMap<String, LootGroup> _mBufferedLootGroups = new HashMap<String, LootGroup>();
 
 	public LootGroup getMergedGroupFromID( int pGroupID, int pFortuneLevel )
 	{
 		LootGroup tReturnGroup = null;
 		LootGroup tTargetGroup = getGroupByID( pGroupID );
+		String tMergedGroupID = getFormattedGroupID( pGroupID, pFortuneLevel );
+
 		if( tTargetGroup != null )
 		{
-			if( !tTargetGroup.getCombineWithTrash() || (EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3) )
+			if( !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
 				tReturnGroup = tTargetGroup;
 			else
 			{
-				double tTrashWeightMultiplicator = 1.0D;
-				if (EnhancedLootBags.ELBCfg.AllowFortuneBags)
-					tTrashWeightMultiplicator = tTrashWeightMultiplicator - (0.33D * pFortuneLevel);
-				
-				tReturnGroup = _mBufferedLootGroups.get( pGroupID );
+				tReturnGroup = _mBufferedLootGroups.get( tMergedGroupID );
 				if( tReturnGroup == null )
 				{
 					LootGroup tTrashGroup = getGroupByID( 0 );
@@ -202,14 +200,11 @@ public class LootGroupsHandler
 
 						for( Drop tDr : tTrashGroup.getDrops() )
 						{
-							tMerged.getDrops().add( _mLGF.copyDrop( tDr, tTrashWeightMultiplicator ) );
+							tMerged.getDrops().add( _mLGF.copyDrop( tDr, recalcWeightByFortune( tDr.getChance(), pFortuneLevel ) ) );
 						}
-						
-						// Now shuffle the list a few times, to ensure randomness
-						tMerged.shuffleLoot();
 
 						// Store the new list in our buffer
-						_mBufferedLootGroups.put( pGroupID, tMerged );
+						_mBufferedLootGroups.put( tMergedGroupID, tMerged );
 
 						// Set as return group
 						tReturnGroup = tMerged;
@@ -226,52 +221,57 @@ public class LootGroupsHandler
 		else
 			_mLogger.error( String.format( "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) );
 
+		// Now shuffle the list a few times, to ensure randomness
+		tReturnGroup.shuffleLoot();
 		return tReturnGroup;
 	}
 
-	public LootGroup getMergedGroupFromIDX( int pGroupID, int pFortuneLevel )
+	private String getFormattedGroupID( int pGroupID, int pFortuneLevel )
 	{
-		LootGroup tReturnGroup = null;
-		LootGroup tTargetGroup = getGroupByID( pGroupID );
-		if( tTargetGroup != null )
-		{
-			if( !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
-				tReturnGroup = tTargetGroup;
-			else
-			{
-				tReturnGroup = _mBufferedLootGroups.get( pGroupID );
-				if( tReturnGroup == null )
-				{
-					LootGroup tTrashGroup = getGroupByID( 0 );
-					if( tTrashGroup != null )
-					{
-						// Copy the original group
-						LootGroup tMerged = _mLGF.copyLootGroup( tTargetGroup );
-						// Add a copy for each trash loot to the drop list
-
-						for( Drop tDr : tTrashGroup.getDrops() )
-							tMerged.getDrops().add( _mLGF.copyDrop( tDr ) );
-
-						// Store the new list in our buffer
-						_mBufferedLootGroups.put( pGroupID, tMerged );
-
-						// Set as return group
-						tReturnGroup = tMerged;
-					}
-					else
-					{
-						// _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it",
-						// pGroupID));
-						tReturnGroup = tTargetGroup;
-					}
-				}
-			}
-		}
-		else
-			_mLogger.error( String.format( "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) );
-
-		return tReturnGroup;
+		return String.format( "%d-%d", pGroupID, pFortuneLevel );
 	}
+
+	/*
+	 * public LootGroup getMergedGroupFromIDX( int pGroupID, int pFortuneLevel )
+	 * {
+	 * LootGroup tReturnGroup = null;
+	 * LootGroup tTargetGroup = getGroupByID( pGroupID );
+	 * if( tTargetGroup != null )
+	 * {
+	 * if( !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
+	 * tReturnGroup = tTargetGroup;
+	 * else
+	 * {
+	 * tReturnGroup = _mBufferedLootGroups.get( pGroupID );
+	 * if( tReturnGroup == null )
+	 * {
+	 * LootGroup tTrashGroup = getGroupByID( 0 );
+	 * if( tTrashGroup != null )
+	 * {
+	 * // Copy the original group
+	 * LootGroup tMerged = _mLGF.copyLootGroup( tTargetGroup );
+	 * // Add a copy for each trash loot to the drop list
+	 * for( Drop tDr : tTrashGroup.getDrops() )
+	 * tMerged.getDrops().add( _mLGF.copyDrop( tDr ) );
+	 * // Store the new list in our buffer
+	 * _mBufferedLootGroups.put( pGroupID, tMerged );
+	 * // Set as return group
+	 * tReturnGroup = tMerged;
+	 * }
+	 * else
+	 * {
+	 * // _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it",
+	 * // pGroupID));
+	 * tReturnGroup = tTargetGroup;
+	 * }
+	 * }
+	 * }
+	 * }
+	 * else
+	 * _mLogger.error( String.format( "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) );
+	 * return tReturnGroup;
+	 * }
+	 */
 
 	public LootGroup getGroupByIDClient( int pGroupID )
 	{
@@ -674,7 +674,7 @@ public class LootGroupsHandler
 					if( i < pSlotCount )
 					{
 						ItemStack tPendingStack = getStackFromDrop( dr );
-						addDropInformationNBT( tPendingStack, dr );
+						addDropInformationNBT( tPendingStack, dr, pLootGroupID );
 						tList[i] = tPendingStack;
 						// _mLogger.info(String.format("fakeInventory[%d]: %s", i, tList[i].getDisplayName()));
 						i++;
@@ -696,6 +696,18 @@ public class LootGroupsHandler
 		}
 		// _mLogger.info(String.format("fakeInventory contains %d items", i));
 		return tList;
+	}
+
+	public static int recalcWeightByFortune( int pOldWeight, int pFortuneLevel )
+	{
+		int tRet = pOldWeight;
+		if( pFortuneLevel > 0 )
+			if( pFortuneLevel < 3 )
+				tRet = pOldWeight - (int) Math.floor( (double) pOldWeight * ( 0.33D * (double) pFortuneLevel ) );
+			else
+				tRet = 0;
+
+		return tRet;
 	}
 
 	private ItemStack getStackFromDrop( Drop pDrop )
@@ -725,6 +737,12 @@ public class LootGroupsHandler
 	private static String NBT_I_DROP_LIMIT = "LBDLimit";
 	private static String NBT_I_DROP_WEIGHT = "LBDWeight";
 	private static String NBT_B_DROP_ISRND = "LBDRnd";
+	
+	private static String NBT_B_MERGETRASH = "LBDTrash";
+	private static String NBT_D_DROPCHANCE_F0 = "LBDCF0";
+	private static String NBT_D_DROPCHANCE_F1 = "LBDCF1";
+	private static String NBT_D_DROPCHANCE_F2 = "LBDCF2";
+	private static String NBT_D_DROPCHANCE_F3 = "LBDCF3";
 
 	/**
 	 * Add NBT Information about this Item to the FakeStack, to disaply detailed information on the client
@@ -732,11 +750,35 @@ public class LootGroupsHandler
 	 * @param pStack
 	 * @param pDrop
 	 */
-	private void addDropInformationNBT( ItemStack pStack, Drop pDrop )
+	private void addDropInformationNBT( ItemStack pStack, Drop pDrop, int pBagID )
 	{
 		NBTTagCompound tTag = pStack.getTagCompound();
 		if( tTag == null )
 			tTag = new NBTTagCompound();
+
+
+		int tTrashWeightF0 = -1;
+		int tTrashWeightF1 = -1;
+		int tTrashWeightF2 = -1;
+		LootGroup tItemGroup = getGroupByID( pBagID );
+		int tLootGroupWeight = tItemGroup.getMaxWeight();
+		
+		if( tTrashWeightF0 == -1 && pBagID != 0 && tItemGroup.getCombineWithTrash())
+		{
+			LootGroup tTrashGroup = getGroupByID( 0 );
+			tTrashWeightF0 = tTrashGroup.getMaxWeight();
+			tTrashWeightF1 = recalcWeightByFortune( tTrashWeightF0, 1 );
+			tTrashWeightF2 = recalcWeightByFortune( tTrashWeightF0, 2 );
+		}
+		
+		if (pBagID == 0 || !tItemGroup.getCombineWithTrash())
+		{
+			tTrashWeightF0 = 0;
+			tTrashWeightF1 = 0;
+			tTrashWeightF2 = 0;
+		}
+
+		//EnhancedLootBags.Logger.info( String.format( "GroupID: %d MaxWeight: %d", pBagID, tLootGroupWeight ) );
 
 		NBTTagCompound tLootTag = tTag.getCompoundTag( NBT_COMPOUND_LOOTBAGINFO );
 
@@ -746,9 +788,26 @@ public class LootGroupsHandler
 		tLootTag.setInteger( NBT_I_DROP_LIMIT, pDrop.getLimitedDropCount() );
 		tLootTag.setInteger( NBT_I_DROP_WEIGHT, pDrop.getChance() );
 		tLootTag.setBoolean( NBT_B_DROP_ISRND, pDrop.getIsRandomAmount() );
+		tLootTag.setBoolean( NBT_B_MERGETRASH, tItemGroup.getCombineWithTrash() );
+		tLootTag.setDouble( NBT_D_DROPCHANCE_F0, calcPercentageFromWeight( pDrop.getChance(), tLootGroupWeight + tTrashWeightF0 ) );
+		tLootTag.setDouble( NBT_D_DROPCHANCE_F1, calcPercentageFromWeight( pDrop.getChance(), tLootGroupWeight + tTrashWeightF1 ) );
+		tLootTag.setDouble( NBT_D_DROPCHANCE_F2, calcPercentageFromWeight( pDrop.getChance(), tLootGroupWeight + tTrashWeightF2 ) );
+		tLootTag.setDouble( NBT_D_DROPCHANCE_F3, calcPercentageFromWeight( pDrop.getChance(), tLootGroupWeight ) );
 
 		tTag.setTag( NBT_COMPOUND_LOOTBAGINFO, tLootTag );
 		pStack.setTagCompound( tTag );
+	}
+
+	private static double calcPercentageFromWeight( double pItemWeight, double pTotalWeight )
+	{
+		double tRet = 0.0D;
+
+		tRet = 100.0D / pTotalWeight * pItemWeight;
+
+		tRet = (double) Math.round( tRet * 100 ) / 100;
+
+		//EnhancedLootBags.Logger.info( String.format( "p1: %.2f p2: %.2f ret: %.2f", pItemWeight, pTotalWeight, tRet ) );
+		return tRet;
 	}
 
 	@SubscribeEvent
@@ -772,6 +831,13 @@ public class LootGroupsHandler
 					tToolTipInfo.add( getFrmStr( String.format( "__lLimit  :__r %d", tDropInfo.getInteger( NBT_I_DROP_LIMIT ) ) ) );
 					tToolTipInfo.add( getFrmStr( String.format( "__lWeight :__r %d", tDropInfo.getInteger( NBT_I_DROP_WEIGHT ) ) ) );
 					tToolTipInfo.add( getFrmStr( String.format( "__lIGroup :__r %s", tDropInfo.getString( NBT_S_DROP_ITGROUP ) ) ) );
+					tToolTipInfo.add( getFrmStr( "__b__6 == Trash/Fortune Behavior == __r" ) );
+					tToolTipInfo.add( getFrmStr( String.format( "__lMerges w Trash   :__r %b", tDropInfo.getBoolean( NBT_B_MERGETRASH ) ) ) );
+					tToolTipInfo.add( getFrmStr( String.format( "__lDrop %% (F0/1/2/3):__r %.2f | %.2f | %.2f | %.2f",
+							tDropInfo.getDouble( NBT_D_DROPCHANCE_F0 ),
+							tDropInfo.getDouble( NBT_D_DROPCHANCE_F1 ),
+							tDropInfo.getDouble( NBT_D_DROPCHANCE_F2 ),
+							tDropInfo.getDouble( NBT_D_DROPCHANCE_F3 ) ) ) );
 
 					pEvent.toolTip.addAll( tToolTipInfo );
 				}
