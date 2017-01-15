@@ -231,5 +231,11 @@ public class LootGroups
 			for( int i = 0; i < EnhancedLootBags.Rnd.nextInt( 10 ); i++ )
 				Collections.shuffle( mDrops );
 		}
+
+    public void updateMaxWeight()
+    {
+      mMaxWeight = -1;
+      getMaxWeight();
+    }
 	}
 }

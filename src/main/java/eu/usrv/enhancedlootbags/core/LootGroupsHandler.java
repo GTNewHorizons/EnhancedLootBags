@@ -200,8 +200,10 @@ public class LootGroupsHandler
 
 						for( Drop tDr : tTrashGroup.getDrops() )
 						{
-							tMerged.getDrops().add( _mLGF.copyDrop( tDr, recalcWeightByFortune( tDr.getChance(), pFortuneLevel ) ) );
+							tMerged.getDrops().add( _mLGF.copyDrop( tDr, pFortuneLevel ) );
 						}
+						
+						tMerged.updateMaxWeight();
 
 						// Store the new list in our buffer
 						_mBufferedLootGroups.put( tMergedGroupID, tMerged );

@@ -1,4 +1,5 @@
 enhancedlootbags.string.lootbag_templatename=Beutetasche (%s)
 enhancedlootbags.string.default=Standard
+enhancedlootbags.try_again=Das hat nicht geklappt. Versuche es noch einmal!
 enhancedlootbags.string.sorry_damaged=Diese Beutetasche scheint beschädigt zu sein, tut uns leid
 itemGroup.ELBTab=Enhanced LootBags

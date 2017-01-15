@@ -162,6 +162,11 @@ public class ItemLootBag extends Item
 				{
 					// _mLogger.info(String.format("q: %d", q));
 					List<ItemStack> isList = getRandomLootItems( pPlayer, tGrp );
+					if (isList.isEmpty())
+					{
+					  PlayerChatHelper.SendNotifyWarning( pPlayer, StatHelper.get( "string.try_again" ) );
+					  return pStack;
+					}
 					q -= isList.size();
 					// _mLogger.info(String.format("NewQ: %d", q));
 
@@ -260,7 +265,7 @@ public class ItemLootBag extends Item
 
 					// _mLogger.info(String.format("PD fixed amount: %d", tAmount));
 					// Try to get ItemDescriptor
-					ItemDescriptor tIDesc = ItemDescriptor.fromString( td.getItemName() );
+					ItemDescriptor tIDesc = ItemDescriptor.fromString( td.getItemName(), true );
 
 					// getItemStackwNBT accepts both empty and filled tags,
 					// makes it easier to process here; As we don't have to
@@ -271,7 +276,7 @@ public class ItemLootBag extends Item
 						// _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
 					}
 					else
-						_mLogger.error( String.format( "Skipping loot %s; Unable to get ItemStack", td.getItemName() ) );
+						_mLogger.error( String.format( "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!", td.getItemName() ) );
 				}
 
 				// tReturnList contains now all ItemStacks that should drop for
@@ -281,7 +286,7 @@ public class ItemLootBag extends Item
 
 			tMaxRuns++;
 		}
-		while( tReturnList.isEmpty() && tMaxRuns < 5 );
+		while( tReturnList.isEmpty() && tMaxRuns < 10 );
 
 		// _mLogger.info(String.format("Final returnList contains %d items", tReturnList.size()));
 		return tReturnList;
