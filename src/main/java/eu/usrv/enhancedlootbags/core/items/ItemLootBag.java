@@ -272,7 +272,10 @@ public class ItemLootBag extends Item
 					// if/else-it
 					if( tIDesc != null )
 					{
-						tReturnList.add( tIDesc.getItemStackwNBT( tAmount, td.getNBTTag() ) );
+						ItemStack tStackAll = tIDesc.getItemStackwNBT( tAmount, td.getNBTTag() );
+						while (tStackAll.stackSize > tStackAll.getMaxStackSize())
+							tReturnList.add( tStackAll.splitStack( tStackAll.getMaxStackSize() ) );
+						tReturnList.add( tStackAll );
 						// _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
 					}
 					else
