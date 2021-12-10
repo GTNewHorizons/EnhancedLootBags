@@ -1,10 +1,10 @@
 [
 {
-  "modid": "enhancedlootbags",
-  "name": "Enhanced LootBags",
+  "modid": "${modId}",
+  "name": "${modName}",
   "description": "LootBags. As they should be",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
+  "version": "${modVersion}",
+  "mcversion": "${minecraftVersion}",
   "url": "https://github.com/GTNewHorizons/EnhancedLootBags",
   "updateUrl": "",
   "authorList": ["Namikon"],
