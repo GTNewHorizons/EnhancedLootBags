@@ -1,26 +1,35 @@
 /*
-    Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com>
+   Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 package eu.usrv.enhancedlootbags.core.items;
 
-
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import eu.usrv.enhancedlootbags.EnhancedLootBags;
+import eu.usrv.enhancedlootbags.GuiHandler;
+import eu.usrv.enhancedlootbags.StatHelper;
+import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
+import eu.usrv.yamcore.auxiliary.ItemDescriptor;
+import eu.usrv.yamcore.auxiliary.LogHelper;
+import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
@@ -34,278 +43,238 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+public class ItemLootBag extends Item {
+    private IIcon _mIcoDefault;
+    private final LootGroupsHandler _mLGHandler;
+    private LogHelper _mLogger = EnhancedLootBags.Logger;
 
-import eu.usrv.enhancedlootbags.EnhancedLootBags;
-import eu.usrv.enhancedlootbags.GuiHandler;
-import eu.usrv.enhancedlootbags.StatHelper;
-import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
-import eu.usrv.yamcore.auxiliary.ItemDescriptor;
-import eu.usrv.yamcore.auxiliary.LogHelper;
-import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
+    public ItemLootBag(LootGroupsHandler pLGHandler) {
+        setHasSubtypes(true);
+        setMaxDamage(0);
+        _mLGHandler = pLGHandler;
+    }
 
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return true;
+    }
 
-public class ItemLootBag extends Item
-{
-	private IIcon _mIcoDefault;
-	private final LootGroupsHandler _mLGHandler;
-	private LogHelper _mLogger = EnhancedLootBags.Logger;
+    @Override
+    public int getItemEnchantability(ItemStack stack) {
+        return 15;
+    }
 
-	public ItemLootBag( LootGroupsHandler pLGHandler )
-	{
-		setHasSubtypes( true );
-		setMaxDamage( 0 );
-		_mLGHandler = pLGHandler;
-	}
+    @Override
+    public int getItemEnchantability() {
+        return 15;
+    }
 
-	@Override
-	public boolean isBookEnchantable( ItemStack stack, ItemStack book )
-	{
-		return true;
-	}
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister pIconRegister) {
+        _mIcoDefault = pIconRegister.registerIcon(String.format("%s:lootbag_generic", EnhancedLootBags.MODID));
+        // for (LootGroup tGrp : _mLGHandler.getLootGroups().getLootTable())
+        // tGrp.setGroupIcon(pIconRegister.registerIcon(String.format("%s:lootbags/lootbag_%d",
+        // Refstrings.MODID, tGrp.mGroupID)));
+    }
 
-	@Override
-	public int getItemEnchantability( ItemStack stack )
-	{
-		return 15;
-	}
+    @SideOnly(Side.CLIENT)
+    public IIcon getIconFromDamage(int par1) {
+        // LootGroup tGrp = getGroupByID(par1);
+        // return tGrp == null ? _mIcoDefault : tGrp.getGroupIcon();
+        return _mIcoDefault;
+    }
 
-	@Override
-	public int getItemEnchantability()
-	{
-		return 15;
-	}
+    @Override
+    public String getItemStackDisplayName(ItemStack pStack) {
+        String tReturn = StatHelper.get("string.lootbag_templatename");
+        String tInnerName = "?Error";
 
-	@SideOnly( Side.CLIENT )
-	public void registerIcons( IIconRegister pIconRegister )
-	{
-		_mIcoDefault = pIconRegister.registerIcon( String.format( "%s:lootbag_generic", EnhancedLootBags.MODID ) );
-		// for (LootGroup tGrp : _mLGHandler.getLootGroups().getLootTable())
-		// tGrp.setGroupIcon(pIconRegister.registerIcon(String.format("%s:lootbags/lootbag_%d",
-		// Refstrings.MODID, tGrp.mGroupID)));
-	}
+        if (pStack.getItemDamage() == 0) tInnerName = StatHelper.get("string.default");
+        else {
+            LootGroup tGrp = _mLGHandler.getGroupByIDClient(pStack.getItemDamage());
+            tInnerName = tGrp == null ? "Error" : tGrp.getGroupName();
+        }
 
-	@SideOnly( Side.CLIENT )
-	public IIcon getIconFromDamage( int par1 )
-	{
-		// LootGroup tGrp = getGroupByID(par1);
-		// return tGrp == null ? _mIcoDefault : tGrp.getGroupIcon();
-		return _mIcoDefault;
-	}
+        return String.format(tReturn, tInnerName);
+    }
 
-	@Override
-	public String getItemStackDisplayName( ItemStack pStack )
-	{
-		String tReturn = StatHelper.get( "string.lootbag_templatename" );
-		String tInnerName = "?Error";
+    @SideOnly(Side.CLIENT)
+    public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
+        for (LootGroup tGrp : _mLGHandler.getLootGroupsClient().getLootTable()) {
+            ItemStack s1 = new ItemStack(this, 1, tGrp.getGroupID());
+            par3List.add(s1);
 
-		if( pStack.getItemDamage() == 0 )
-			tInnerName = StatHelper.get( "string.default" );
-		else
-		{
-			LootGroup tGrp = _mLGHandler.getGroupByIDClient( pStack.getItemDamage() );
-			tInnerName = tGrp == null ? "Error" : tGrp.getGroupName();
-		}
+            if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
+                ItemStack s2 = s1.copy();
+                s2.addEnchantment(Enchantment.fortune, 3);
+                par3List.add(s2);
+            }
+        }
+    }
 
-		return String.format( tReturn, tInnerName );
-	}
+    @Override
+    public EnumRarity getRarity(ItemStack stack) {
+        LootGroup tGrp = _mLGHandler.getGroupByIDClient(stack.getItemDamage());
+        return tGrp == null ? EnumRarity.common : tGrp.getGroupRarity();
+    }
 
-	@SideOnly( Side.CLIENT )
-	public void getSubItems( Item par1, CreativeTabs par2CreativeTabs, List par3List )
-	{
-		for( LootGroup tGrp : _mLGHandler.getLootGroupsClient().getLootTable() )
-		{
-			ItemStack s1 = new ItemStack( this, 1, tGrp.getGroupID() );
-			par3List.add( s1 );
+    @Override
+    public ItemStack onItemRightClick(ItemStack pStack, World pWorld, EntityPlayer pPlayer) {
+        if (!pWorld.isRemote) {
+            if (pPlayer.capabilities.isCreativeMode && pPlayer.isSneaking()) {
+                pPlayer.openGui(
+                        EnhancedLootBags.instance,
+                        GuiHandler.GUI_LOOTBAG,
+                        pWorld,
+                        (int) pPlayer.posX,
+                        (int) pPlayer.posY,
+                        (int) pPlayer.posZ);
+                return pStack;
+            }
 
-			if( EnhancedLootBags.ELBCfg.AllowFortuneBags )
-			{
-				ItemStack s2 = s1.copy();
-				s2.addEnchantment( Enchantment.fortune, 3 );
-				par3List.add( s2 );
-			}
-		}
-	}
+            int tGroupID = pStack.getItemDamage();
+            int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pStack);
+            LootGroup tGrp = _mLGHandler.getMergedGroupFromID(tGroupID, tFortuneLevel);
+            if (tGrp != null) {
+                int q = tGrp.getMinItems();
+                if (tGrp.getMaxItems() > tGrp.getMinItems()) q = pWorld.rand.nextInt(tGrp.getMaxItems()) + 1;
 
-	@Override
-	public EnumRarity getRarity( ItemStack stack )
-	{
-		LootGroup tGrp = _mLGHandler.getGroupByIDClient( stack.getItemDamage() );
-		return tGrp == null ? EnumRarity.common : tGrp.getGroupRarity();
-	}
+                // _mLogger.info(String.format("MinMax %d / %d", tGrp.mMinItems, tGrp.mMaxItems));
+                while (q > 0) {
+                    // _mLogger.info(String.format("q: %d", q));
+                    List<ItemStack> isList = getRandomLootItems(pPlayer, tGrp);
+                    if (isList.isEmpty()) {
+                        PlayerChatHelper.SendNotifyWarning(pPlayer, StatHelper.get("string.try_again"));
+                        return pStack;
+                    }
+                    q -= isList.size();
+                    // _mLogger.info(String.format("NewQ: %d", q));
 
-	@Override
-	public ItemStack onItemRightClick( ItemStack pStack, World pWorld, EntityPlayer pPlayer )
-	{
-		if( !pWorld.isRemote )
-		{
-			if( pPlayer.capabilities.isCreativeMode && pPlayer.isSneaking() )
-			{
-				pPlayer.openGui( EnhancedLootBags.instance, GuiHandler.GUI_LOOTBAG, pWorld, (int) pPlayer.posX, (int) pPlayer.posY, (int) pPlayer.posZ );
-				return pStack;
-			}
+                    for (ItemStack tStack : isList) {
+                        try {
+                            EntityItem eti =
+                                    new EntityItem(pWorld, pPlayer.posX, pPlayer.posY, pPlayer.posZ, tStack.copy());
+                            eti.delayBeforeCanPickup = 0;
+                            pWorld.spawnEntityInWorld(eti);
+                        } catch (Exception e) {
+                            _mLogger.error("Unable to spawn dropitem in world");
+                            e.printStackTrace();
+                        }
+                    }
+                }
 
-			int tGroupID = pStack.getItemDamage();
-			int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel( Enchantment.fortune.effectId, pStack );
-			LootGroup tGrp = _mLGHandler.getMergedGroupFromID( tGroupID, tFortuneLevel );
-			if( tGrp != null )
-			{
-				int q = tGrp.getMinItems();
-				if( tGrp.getMaxItems() > tGrp.getMinItems() )
-					q = pWorld.rand.nextInt( tGrp.getMaxItems() ) + 1;
+                pWorld.playSoundAtEntity(
+                        pPlayer, String.format("%s:lootbag_open", EnhancedLootBags.MODID), 0.75F, 1.0F);
+                pStack.stackSize -= 1;
+            } else {
+                PlayerChatHelper.SendNotifyWarning(pPlayer, StatHelper.get("string.sorry_damaged"));
+            }
+        }
+        return pStack;
+    }
 
-				// _mLogger.info(String.format("MinMax %d / %d", tGrp.mMinItems, tGrp.mMaxItems));
-				while( q > 0 )
-				{
-					// _mLogger.info(String.format("q: %d", q));
-					List<ItemStack> isList = getRandomLootItems( pPlayer, tGrp );
-					if (isList.isEmpty())
-					{
-					  PlayerChatHelper.SendNotifyWarning( pPlayer, StatHelper.get( "string.try_again" ) );
-					  return pStack;
-					}
-					q -= isList.size();
-					// _mLogger.info(String.format("NewQ: %d", q));
+    private List<ItemStack> getRandomLootItems(EntityPlayer player, LootGroup pGrp) {
+        List<ItemStack> tReturnList = new ArrayList<ItemStack>();
+        List<Drop> tPendingDrops = new ArrayList<Drop>();
 
-					for( ItemStack tStack : isList )
-					{
-						try
-						{
-							EntityItem eti = new EntityItem( pWorld, pPlayer.posX, pPlayer.posY, pPlayer.posZ, tStack.copy() );
-							eti.delayBeforeCanPickup = 0;
-							pWorld.spawnEntityInWorld( eti );
-						}
-						catch( Exception e )
-						{
-							_mLogger.error( "Unable to spawn dropitem in world" );
-							e.printStackTrace();
-						}
-					}
-				}
+        double tRnd;
+        int tMaxRuns = 0;
+        Drop tSelectedDrop = null;
 
-				pWorld.playSoundAtEntity( pPlayer, String.format( "%s:lootbag_open", EnhancedLootBags.MODID ), 0.75F, 1.0F );
-				pStack.stackSize -= 1;
-			}
-			else
-			{
-				PlayerChatHelper.SendNotifyWarning( pPlayer, StatHelper.get( "string.sorry_damaged" ) );
-			}
-		}
-		return pStack;
-	}
+        do {
+            // Step 1: Get a random drop by weight
+            tRnd = EnhancedLootBags.Rnd.nextDouble() * pGrp.getMaxWeight();
+            for (Drop tDr : pGrp.getDrops()) {
+                tRnd -= tDr.getChance();
+                if (tRnd <= 0.0D) {
+                    tSelectedDrop = tDr;
+                    break;
+                }
+            }
 
-	private List<ItemStack> getRandomLootItems( EntityPlayer player, LootGroup pGrp )
-	{
-		List<ItemStack> tReturnList = new ArrayList<ItemStack>();
-		List<Drop> tPendingDrops = new ArrayList<Drop>();
+            // _mLogger.info(String.format("Maxruns: %d", tMaxRuns));
 
-		double tRnd;
-		int tMaxRuns = 0;
-		Drop tSelectedDrop = null;
+            // Step 2: Was the selection successful?
+            if (tSelectedDrop != null) {
+                // _mLogger.info(String.format("SelectedDrop: %s", tSelectedDrop.mItemName));
+                // Ask the LootGroupHandler to provide a list with drops we shall use,
+                // based on the current drop. See JDoc on that function for details.
+                List<Drop> tPossibleItemDrops = _mLGHandler.getItemGroupDrops(pGrp, tSelectedDrop);
+                // _mLogger.info(String.format("Dump tPossibleDrops. Count: %d", tPossibleItemDrops.size()));
 
-		do
-		{
-			// Step 1: Get a random drop by weight
-			tRnd = EnhancedLootBags.Rnd.nextDouble() * pGrp.getMaxWeight();
-			for( Drop tDr : pGrp.getDrops() )
-			{
-				tRnd -= tDr.getChance();
-				if( tRnd <= 0.0D )
-				{
-					tSelectedDrop = tDr;
-					break;
-				}
-			}
+                // Now check for each item if the player is allowed to get
+                // another one of these.
+                // The check for isLimitedDrop is done in that function; So we
+                // only query the local
+                // Storage when it's required
+                for (Drop dr : tPossibleItemDrops) {
+                    // _mLogger.info(String.format("PossibleDrop: %s", dr.mItemName));
+                    if (_mLGHandler.isDropAllowedForPlayer(player, pGrp, dr, true)) {
+                        // ... so add it to the pending items list.
+                        tPendingDrops.add(dr);
+                    }
+                }
 
-			// _mLogger.info(String.format("Maxruns: %d", tMaxRuns));
+                // At this point, we have a list of 1 to x items, depending on
+                // how the lootgroups are defined
+                // now we have to loop the chosen drops and get the actual
+                // ItemStacks with NBT and metavalues
 
-			// Step 2: Was the selection successful?
-			if( tSelectedDrop != null )
-			{
-				// _mLogger.info(String.format("SelectedDrop: %s", tSelectedDrop.mItemName));
-				// Ask the LootGroupHandler to provide a list with drops we shall use,
-				// based on the current drop. See JDoc on that function for details.
-				List<Drop> tPossibleItemDrops = _mLGHandler.getItemGroupDrops( pGrp, tSelectedDrop );
-				// _mLogger.info(String.format("Dump tPossibleDrops. Count: %d", tPossibleItemDrops.size()));
+                // _mLogger.info(String.format("PendingDrops dump. Size : %d", tPendingDrops.size()));
+                for (Drop td : tPendingDrops) {
+                    // _mLogger.info(String.format("PendingDrop: %s", td.mItemName));
+                    // How much to drop
+                    int tAmount = td.getAmount();
+                    // _mLogger.info(String.format("PendingDrop amount: %d", tAmount));
+                    // Random drop? Alter amount by random
+                    // Then get random amount between 1 and tAmount
+                    if (td.getIsRandomAmount()) tAmount = EnhancedLootBags.Rnd.nextInt(tAmount) + 1;
 
-				// Now check for each item if the player is allowed to get
-				// another one of these.
-				// The check for isLimitedDrop is done in that function; So we
-				// only query the local
-				// Storage when it's required
-				for( Drop dr : tPossibleItemDrops )
-				{
-					// _mLogger.info(String.format("PossibleDrop: %s", dr.mItemName));
-					if( _mLGHandler.isDropAllowedForPlayer( player, pGrp, dr, true ) )
-					{
-						// ... so add it to the pending items list.
-						tPendingDrops.add( dr );
-					}
-				}
+                    // _mLogger.info(String.format("PD fixed amount: %d", tAmount));
+                    // Try to get ItemDescriptor
+                    ItemDescriptor tIDesc = ItemDescriptor.fromString(td.getItemName(), true);
 
-				// At this point, we have a list of 1 to x items, depending on
-				// how the lootgroups are defined
-				// now we have to loop the chosen drops and get the actual
-				// ItemStacks with NBT and metavalues
+                    // getItemStackwNBT accepts both empty and filled tags,
+                    // makes it easier to process here; As we don't have to
+                    // if/else-it
+                    if (tIDesc != null) {
+                        ItemStack tStackAll = tIDesc.getItemStackwNBT(tAmount, td.getNBTTag());
+                        while (tStackAll.stackSize > tStackAll.getMaxStackSize())
+                            tReturnList.add(tStackAll.splitStack(tStackAll.getMaxStackSize()));
+                        tReturnList.add(tStackAll);
+                        // _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
+                    } else
+                        _mLogger.error(String.format(
+                                "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!",
+                                td.getItemName()));
+                }
 
-				// _mLogger.info(String.format("PendingDrops dump. Size : %d", tPendingDrops.size()));
-				for( Drop td : tPendingDrops )
-				{
-					// _mLogger.info(String.format("PendingDrop: %s", td.mItemName));
-					// How much to drop
-					int tAmount = td.getAmount();
-					// _mLogger.info(String.format("PendingDrop amount: %d", tAmount));
-					// Random drop? Alter amount by random
-					// Then get random amount between 1 and tAmount
-					if( td.getIsRandomAmount() )
-						tAmount = EnhancedLootBags.Rnd.nextInt( tAmount ) + 1;
+                // tReturnList contains now all ItemStacks that should drop for
+                // this turn
 
-					// _mLogger.info(String.format("PD fixed amount: %d", tAmount));
-					// Try to get ItemDescriptor
-					ItemDescriptor tIDesc = ItemDescriptor.fromString( td.getItemName(), true );
+            }
 
-					// getItemStackwNBT accepts both empty and filled tags,
-					// makes it easier to process here; As we don't have to
-					// if/else-it
-					if( tIDesc != null )
-					{
-						ItemStack tStackAll = tIDesc.getItemStackwNBT( tAmount, td.getNBTTag() );
-						while (tStackAll.stackSize > tStackAll.getMaxStackSize())
-							tReturnList.add( tStackAll.splitStack( tStackAll.getMaxStackSize() ) );
-						tReturnList.add( tStackAll );
-						// _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
-					}
-					else
-						_mLogger.error( String.format( "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!", td.getItemName() ) );
-				}
+            tMaxRuns++;
+        } while (tReturnList.isEmpty() && tMaxRuns < 10);
 
-				// tReturnList contains now all ItemStacks that should drop for
-				// this turn
+        // _mLogger.info(String.format("Final returnList contains %d items", tReturnList.size()));
+        return tReturnList;
+    }
 
-			}
-
-			tMaxRuns++;
-		}
-		while( tReturnList.isEmpty() && tMaxRuns < 10 );
-
-		// _mLogger.info(String.format("Final returnList contains %d items", tReturnList.size()));
-		return tReturnList;
-	}
-
-	@Override
-	@SideOnly( Side.CLIENT )
-	public void addInformation( ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList, boolean pSomeBooleanValue )
-	{
-		if( EnhancedLootBags.ELBCfg.AllowFortuneBags )
-		{
-			int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel( Enchantment.fortune.effectId, pItemStack );
-			if( tFortuneLevel == 0 )
-				pTooltipList.add( String.format( "%sYou feel that a bit more \"Fortune\" might be a good idea...", EnumChatFormatting.DARK_PURPLE ) );
-			else
-				pTooltipList.add( String.format( "%sYour luck is increased by %d %%", EnumChatFormatting.GOLD, ( tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel ) ) );
-		}
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(
+            ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList, boolean pSomeBooleanValue) {
+        if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
+            int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pItemStack);
+            if (tFortuneLevel == 0)
+                pTooltipList.add(String.format(
+                        "%sYou feel that a bit more \"Fortune\" might be a good idea...",
+                        EnumChatFormatting.DARK_PURPLE));
+            else
+                pTooltipList.add(String.format(
+                        "%sYour luck is increased by %d %%",
+                        EnumChatFormatting.GOLD, (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
+        }
+    }
 }
