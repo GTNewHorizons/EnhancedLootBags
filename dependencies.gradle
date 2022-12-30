@@ -1,5 +1,5 @@
 // Add your dependencies here
 
 dependencies {
-    compile("com.github.GTNewHorizons:Yamcl:master-SNAPSHOT:dev")
+    compile("com.github.GTNewHorizons:Yamcl:0.5.84:dev")
 }
