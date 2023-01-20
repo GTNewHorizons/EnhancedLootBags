@@ -1,5 +1,7 @@
 // Add your dependencies here
 
 dependencies {
+    shadowImplementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+    shadowImplementation("com.sun.xml.bind:jaxb-impl:3.0.2")
     compile("com.github.GTNewHorizons:Yamcl:0.5.84:dev")
 }
