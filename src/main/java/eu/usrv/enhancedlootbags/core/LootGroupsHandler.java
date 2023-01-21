@@ -32,6 +32,7 @@ import eu.usrv.yamcore.auxiliary.LogHelper;
 import eu.usrv.yamcore.auxiliary.TextFormatHelper;
 import eu.usrv.yamcore.persisteddata.PersistedDataBase;
 import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
@@ -273,10 +274,16 @@ public class LootGroupsHandler {
      * @return
      */
     public boolean SaveLootGroups() {
+        final Marshaller jaxMarsh;
         try {
-            JAXBContext tJaxbCtx = JAXBContext.newInstance(LootGroups.class);
-            Marshaller jaxMarsh = tJaxbCtx.createMarshaller();
+            final JAXBContext tJaxbCtx = JAXBContext.newInstance(LootGroups.class);
+            jaxMarsh = tJaxbCtx.createMarshaller();
             jaxMarsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        } catch (JAXBException e) {
+            _mLogger.error("[LootBags] Unable to construct JAXB context. " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        try {
             jaxMarsh.marshal(_mLootGroups, new FileOutputStream(_mConfigFileName, false));
 
             // _mLogger.debug("[LootBags] Config file written");
@@ -469,10 +476,15 @@ public class LootGroupsHandler {
         boolean tResult = false;
 
         // _mLogger.debug("[LootBags] LootGroupsHandler will now try to load its configuration");
+        final Unmarshaller jaxUnmarsh;
         try {
-            JAXBContext tJaxbCtx = JAXBContext.newInstance(LootGroups.class);
-            Unmarshaller jaxUnmarsh = tJaxbCtx.createUnmarshaller();
-
+            final JAXBContext tJaxbCtx = JAXBContext.newInstance(LootGroups.class);
+            jaxUnmarsh = tJaxbCtx.createUnmarshaller();
+        } catch (JAXBException e) {
+            _mLogger.error("[LootBags] Unable to construct JAXB context. " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        try {
             LootGroups tNewItemCollection = null;
             boolean tLocalConfig = pXMLContent.isEmpty();
 
