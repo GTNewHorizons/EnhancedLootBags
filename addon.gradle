@@ -1,6 +1,0 @@
-
-// JAXB Extensively uses Class.forName("org.glassfish.jaxb.runtime....") to load its own classes
-afterEvaluate {
-    relocateShadowJar.enabled = false
-    relocateShadowDevJar.enabled = false
-}
