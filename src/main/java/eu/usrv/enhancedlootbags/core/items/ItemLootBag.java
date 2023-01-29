@@ -1,35 +1,17 @@
 /*
-   Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com> This program is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in
+ * the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package eu.usrv.enhancedlootbags.core.items;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import eu.usrv.enhancedlootbags.EnhancedLootBags;
-import eu.usrv.enhancedlootbags.GuiHandler;
-import eu.usrv.enhancedlootbags.StatHelper;
-import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
-import eu.usrv.yamcore.auxiliary.ItemDescriptor;
-import eu.usrv.yamcore.auxiliary.LogHelper;
-import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
@@ -43,7 +25,20 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import eu.usrv.enhancedlootbags.EnhancedLootBags;
+import eu.usrv.enhancedlootbags.GuiHandler;
+import eu.usrv.enhancedlootbags.StatHelper;
+import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
+import eu.usrv.yamcore.auxiliary.ItemDescriptor;
+import eu.usrv.yamcore.auxiliary.LogHelper;
+import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
+
 public class ItemLootBag extends Item {
+
     private IIcon _mIcoDefault;
     private final LootGroupsHandler _mLGHandler;
     private LogHelper _mLogger = EnhancedLootBags.Logger;
@@ -152,8 +147,12 @@ public class ItemLootBag extends Item {
 
                     for (ItemStack tStack : isList) {
                         try {
-                            EntityItem eti =
-                                    new EntityItem(pWorld, pPlayer.posX, pPlayer.posY, pPlayer.posZ, tStack.copy());
+                            EntityItem eti = new EntityItem(
+                                    pWorld,
+                                    pPlayer.posX,
+                                    pPlayer.posY,
+                                    pPlayer.posZ,
+                                    tStack.copy());
                             eti.delayBeforeCanPickup = 0;
                             pWorld.spawnEntityInWorld(eti);
                         } catch (Exception e) {
@@ -164,7 +163,10 @@ public class ItemLootBag extends Item {
                 }
 
                 pWorld.playSoundAtEntity(
-                        pPlayer, String.format("%s:lootbag_open", EnhancedLootBags.MODID), 0.75F, 1.0F);
+                        pPlayer,
+                        String.format("%s:lootbag_open", EnhancedLootBags.MODID),
+                        0.75F,
+                        1.0F);
                 pStack.stackSize -= 1;
             } else {
                 PlayerChatHelper.SendNotifyWarning(pPlayer, StatHelper.get("string.sorry_damaged"));
@@ -243,10 +245,10 @@ public class ItemLootBag extends Item {
                             tReturnList.add(tStackAll.splitStack(tStackAll.getMaxStackSize()));
                         tReturnList.add(tStackAll);
                         // _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
-                    } else
-                        _mLogger.error(String.format(
-                                "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!",
-                                td.getItemName()));
+                    } else _mLogger.error(
+                            String.format(
+                                    "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!",
+                                    td.getItemName()));
                 }
 
                 // tReturnList contains now all ItemStacks that should drop for
@@ -263,18 +265,19 @@ public class ItemLootBag extends Item {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(
-            ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList, boolean pSomeBooleanValue) {
+    public void addInformation(ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList,
+            boolean pSomeBooleanValue) {
         if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
             int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pItemStack);
-            if (tFortuneLevel == 0)
-                pTooltipList.add(String.format(
-                        "%sYou feel that a bit more \"Fortune\" might be a good idea...",
-                        EnumChatFormatting.DARK_PURPLE));
-            else
-                pTooltipList.add(String.format(
-                        "%sYour luck is increased by %d %%",
-                        EnumChatFormatting.GOLD, (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
+            if (tFortuneLevel == 0) pTooltipList.add(
+                    String.format(
+                            "%sYou feel that a bit more \"Fortune\" might be a good idea...",
+                            EnumChatFormatting.DARK_PURPLE));
+            else pTooltipList.add(
+                    String.format(
+                            "%sYour luck is increased by %d %%",
+                            EnumChatFormatting.GOLD,
+                            (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
         }
     }
 }

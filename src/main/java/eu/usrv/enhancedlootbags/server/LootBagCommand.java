@@ -1,31 +1,18 @@
 /*
-   Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com> This program is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in
+ * the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package eu.usrv.enhancedlootbags.server;
 
-import eu.usrv.enhancedlootbags.EnhancedLootBags;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
-import eu.usrv.enhancedlootbags.core.serializer.LootGroupsFactory;
-import eu.usrv.yamcore.auxiliary.ItemDescriptor;
-import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,7 +21,15 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 
+import eu.usrv.enhancedlootbags.EnhancedLootBags;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
+import eu.usrv.enhancedlootbags.core.serializer.LootGroupsFactory;
+import eu.usrv.yamcore.auxiliary.ItemDescriptor;
+import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
+
 public class LootBagCommand implements ICommand {
+
     private List aliases;
 
     public LootBagCommand() {
@@ -150,9 +145,8 @@ public class LootBagCommand implements ICommand {
                         }
                     } else
                         PlayerChatHelper.SendError(pCmdSender, String.format("LootGroup ID %d is unknown", tGroupID));
-                } else
-                    PlayerChatHelper.SendError(
-                            pCmdSender, String.format("Some flags are wrong. Make sure to read the readme"));
+                } else PlayerChatHelper
+                        .SendError(pCmdSender, String.format("Some flags are wrong. Make sure to read the readme"));
             } else if (tSubCommand.equalsIgnoreCase("addgroup")) {
                 int tGroupID = Integer.parseInt(pArgs[1]);
                 String tGroupName = String.format("Unnamed group %d", tGroupID);
@@ -176,20 +170,17 @@ public class LootBagCommand implements ICommand {
                     LootGroup tGrp = EnhancedLootBags.LootGroupHandler.getGroupByID(tGroupID);
 
                     if (tGrp == null) {
-                        LootGroup tNewGroup =
-                                tLGF.createLootGroup(tGroupID, tGroupName, tRarity, tMinItems, tMaxItems, true);
-                        EnhancedLootBags.LootGroupHandler.getLootGroups()
-                                .getLootTable()
-                                .add(tNewGroup);
+                        LootGroup tNewGroup = tLGF
+                                .createLootGroup(tGroupID, tGroupName, tRarity, tMinItems, tMaxItems, true);
+                        EnhancedLootBags.LootGroupHandler.getLootGroups().getLootTable().add(tNewGroup);
                         EnhancedLootBags.LootGroupHandler.SaveLootGroups();
                         PlayerChatHelper.SendInfo(
-                                pCmdSender, String.format("New group added (ID: %d Name: %s)", tGroupID, tGroupName));
-                    } else
-                        PlayerChatHelper.SendError(
-                                pCmdSender, String.format("LootGroup ID %d is already in use", tGroupID));
-                } else
-                    PlayerChatHelper.SendError(
-                            pCmdSender, String.format("Some flags are wrong. Make sure to read the readme"));
+                                pCmdSender,
+                                String.format("New group added (ID: %d Name: %s)", tGroupID, tGroupName));
+                    } else PlayerChatHelper
+                            .SendError(pCmdSender, String.format("LootGroup ID %d is already in use", tGroupID));
+                } else PlayerChatHelper
+                        .SendError(pCmdSender, String.format("Some flags are wrong. Make sure to read the readme"));
             }
 
         } catch (Exception e) {
@@ -215,8 +206,8 @@ public class LootBagCommand implements ICommand {
     public boolean canCommandSenderUseCommand(ICommandSender pCommandSender) {
         if (pCommandSender instanceof EntityPlayerMP) {
             EntityPlayerMP tEP = (EntityPlayerMP) pCommandSender;
-            boolean tPlayerOpped =
-                    MinecraftServer.getServer().getConfigurationManager().func_152596_g(tEP.getGameProfile());
+            boolean tPlayerOpped = MinecraftServer.getServer().getConfigurationManager()
+                    .func_152596_g(tEP.getGameProfile());
             boolean tIncreative = tEP.capabilities.isCreativeMode;
             return tPlayerOpped && tIncreative;
         } else if (pCommandSender instanceof MinecraftServer) return true;

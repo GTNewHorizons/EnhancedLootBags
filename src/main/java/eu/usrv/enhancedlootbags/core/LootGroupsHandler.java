@@ -1,21 +1,36 @@
 /*
-   Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com> This program is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in
+ * the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package eu.usrv.enhancedlootbags.core;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
+import net.minecraft.item.EnumRarity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -31,28 +46,9 @@ import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 import eu.usrv.yamcore.auxiliary.TextFormatHelper;
 import eu.usrv.yamcore.persisteddata.PersistedDataBase;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.item.EnumRarity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
 public class LootGroupsHandler {
+
     private LogHelper _mLogger = EnhancedLootBags.Logger;
     private String _mConfigFileName;
     private LootGroupsFactory _mLGF = new LootGroupsFactory();
@@ -92,8 +88,8 @@ public class LootGroupsHandler {
      * @param pDrop
      * @return
      */
-    public boolean isDropAllowedForPlayer(
-            EntityPlayer pPlayer, LootGroup pGroup, Drop pDrop, boolean pUpdateDropCount) {
+    public boolean isDropAllowedForPlayer(EntityPlayer pPlayer, LootGroup pGroup, Drop pDrop,
+            boolean pUpdateDropCount) {
         InitStorage();
 
         boolean tResult = true;
@@ -109,9 +105,10 @@ public class LootGroupsHandler {
     }
 
     private void InitStorage() {
-        if (_mPersistedDB == null)
-            _mPersistedDB = new PersistedDataBase(
-                    DimensionManager.getCurrentSaveRootDirectory(), "LootBags.dat", "LootBagStorage");
+        if (_mPersistedDB == null) _mPersistedDB = new PersistedDataBase(
+                DimensionManager.getCurrentSaveRootDirectory(),
+                "LootBags.dat",
+                "LootBagStorage");
     }
 
     /**
@@ -216,45 +213,17 @@ public class LootGroupsHandler {
     }
 
     /*
-     * public LootGroup getMergedGroupFromIDX( int pGroupID, int pFortuneLevel )
-     * {
-     * LootGroup tReturnGroup = null;
-     * LootGroup tTargetGroup = getGroupByID( pGroupID );
-     * if( tTargetGroup != null )
-     * {
-     * if( !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
-     * tReturnGroup = tTargetGroup;
-     * else
-     * {
-     * tReturnGroup = _mBufferedLootGroups.get( pGroupID );
-     * if( tReturnGroup == null )
-     * {
-     * LootGroup tTrashGroup = getGroupByID( 0 );
-     * if( tTrashGroup != null )
-     * {
-     * // Copy the original group
-     * LootGroup tMerged = _mLGF.copyLootGroup( tTargetGroup );
-     * // Add a copy for each trash loot to the drop list
-     * for( Drop tDr : tTrashGroup.getDrops() )
-     * tMerged.getDrops().add( _mLGF.copyDrop( tDr ) );
-     * // Store the new list in our buffer
-     * _mBufferedLootGroups.put( pGroupID, tMerged );
-     * // Set as return group
-     * tReturnGroup = tMerged;
-     * }
-     * else
-     * {
-     * // _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it",
-     * // pGroupID));
-     * tReturnGroup = tTargetGroup;
-     * }
-     * }
-     * }
-     * }
-     * else
-     * _mLogger.error( String.format( "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) );
-     * return tReturnGroup;
-     * }
+     * public LootGroup getMergedGroupFromIDX( int pGroupID, int pFortuneLevel ) { LootGroup tReturnGroup = null;
+     * LootGroup tTargetGroup = getGroupByID( pGroupID ); if( tTargetGroup != null ) { if(
+     * !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
+     * tReturnGroup = tTargetGroup; else { tReturnGroup = _mBufferedLootGroups.get( pGroupID ); if( tReturnGroup == null
+     * ) { LootGroup tTrashGroup = getGroupByID( 0 ); if( tTrashGroup != null ) { // Copy the original group LootGroup
+     * tMerged = _mLGF.copyLootGroup( tTargetGroup ); // Add a copy for each trash loot to the drop list for( Drop tDr :
+     * tTrashGroup.getDrops() ) tMerged.getDrops().add( _mLGF.copyDrop( tDr ) ); // Store the new list in our buffer
+     * _mBufferedLootGroups.put( pGroupID, tMerged ); // Set as return group tReturnGroup = tMerged; } else { //
+     * _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it", // pGroupID));
+     * tReturnGroup = tTargetGroup; } } } } else _mLogger.error( String.format(
+     * "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) ); return tReturnGroup; }
      */
 
     public LootGroup getGroupByIDClient(int pGroupID) {
@@ -338,18 +307,11 @@ public class LootGroupsHandler {
     }
 
     /*
-     * public void dumpDebugInfo(String pArea)
-     * {
-     * _mLogger.info(String.format("Area: %s", pArea));
-     * _mLogger.info("====== Dumping LootTables ======");
-     * for (LootGroup tlg : _mLootGroups.getLootTable())
-     * {
-     * for (Drop tdr : tlg.getDrops())
-     * _mLogger.info(String.format("Group: %s Drop %s", tlg.getGroupName(), tdr.getItemName()));
-     * }
-     * _mLogger.info("====== States ======");
-     * _mLogger.info(String.format("Initialized: %s", _mInitialized ? "true" : "false"));
-     * }
+     * public void dumpDebugInfo(String pArea) { _mLogger.info(String.format("Area: %s", pArea));
+     * _mLogger.info("====== Dumping LootTables ======"); for (LootGroup tlg : _mLootGroups.getLootTable()) { for (Drop
+     * tdr : tlg.getDrops()) _mLogger.info(String.format("Group: %s Drop %s", tlg.getGroupName(), tdr.getItemName())); }
+     * _mLogger.info("====== States ======"); _mLogger.info(String.format("Initialized: %s", _mInitialized ? "true" :
+     * "false")); }
      */
 
     private static Item mLootBagItem = null;
@@ -438,9 +400,11 @@ public class LootGroupsHandler {
 
                 for (Drop Y : X.getDrops()) {
                     if (ItemDescriptor.fromString(Y.getItemName()) == null) {
-                        _mLogger.error(String.format(
-                                "[LootBags] In ItemDropID: [%s], can't find item [%s]",
-                                Y.getIdentifier(), Y.getItemName()));
+                        _mLogger.error(
+                                String.format(
+                                        "[LootBags] In ItemDropID: [%s], can't find item [%s]",
+                                        Y.getIdentifier(),
+                                        Y.getItemName()));
                         tSuccess = false; // Maybe add the nothing-item here? Or the invalid-item item from HQM
                     }
 
@@ -449,8 +413,10 @@ public class LootGroupsHandler {
                             NBTTagCompound tNBT = (NBTTagCompound) JsonToNBT.func_150315_a(Y.getNBTTag());
                             if (tNBT == null) tSuccess = false;
                         } catch (Exception e) {
-                            _mLogger.error(String.format(
-                                    "[LootBags] In ItemDropID: [%s], NBTTag is invalid", Y.getIdentifier()));
+                            _mLogger.error(
+                                    String.format(
+                                            "[LootBags] In ItemDropID: [%s], NBTTag is invalid",
+                                            Y.getIdentifier()));
                             tSuccess = false;
                         }
                     }
@@ -548,8 +514,8 @@ public class LootGroupsHandler {
     }
 
     /**
-     * Get a list of all configured drops that are defined as a "ItemGroup" within the lootgroup.
-     * If no itemGroup is defined, the list will only contain the given item
+     * Get a list of all configured drops that are defined as a "ItemGroup" within the lootgroup. If no itemGroup is
+     * defined, the list will only contain the given item
      *
      * @param pGrp
      * @param tSelectedDrop
@@ -564,14 +530,13 @@ public class LootGroupsHandler {
                 if (tDr.getItemDropGroup().equalsIgnoreCase(pSelectedDrop.getItemDropGroup())) tGrp.add(tDr);
 
             if (tGrp.isEmpty()) // Just in case something REALLY derpy happens..
-            tGrp.add(pSelectedDrop);
+                tGrp.add(pSelectedDrop);
         }
         return tGrp;
     }
 
     /**
-     * Creates a fake Array of ItemStacks for given LootGroupID
-     * This should only execute on the SERVER thread
+     * Creates a fake Array of ItemStacks for given LootGroupID This should only execute on the SERVER thread
      *
      * @param pLootGroupID
      * @return
@@ -592,9 +557,11 @@ public class LootGroupsHandler {
                         // _mLogger.info(String.format("fakeInventory[%d]: %s", i, tList[i].getDisplayName()));
                         i++;
                     } else {
-                        _mLogger.warn(String.format(
-                                "Warning: LootBagID %d contains more items than the GUI can currently display! (%d) The result will be truncated",
-                                pLootGroupID, pSlotCount));
+                        _mLogger.warn(
+                                String.format(
+                                        "Warning: LootBagID %d contains more items than the GUI can currently display! (%d) The result will be truncated",
+                                        pLootGroupID,
+                                        pSlotCount));
                         break;
                     }
                 }
@@ -609,10 +576,9 @@ public class LootGroupsHandler {
 
     public static int recalcWeightByFortune(int pOldWeight, int pFortuneLevel) {
         int tRet = pOldWeight;
-        if (pFortuneLevel > 0)
-            if (pFortuneLevel < 3)
-                tRet = pOldWeight - (int) Math.floor((double) pOldWeight * (0.33D * (double) pFortuneLevel));
-            else tRet = 0;
+        if (pFortuneLevel > 0) if (pFortuneLevel < 3)
+            tRet = pOldWeight - (int) Math.floor((double) pOldWeight * (0.33D * (double) pFortuneLevel));
+        else tRet = 0;
 
         return tRet;
     }
@@ -625,8 +591,11 @@ public class LootGroupsHandler {
             if (tDesc != null) tRet = tDesc.getItemStackwNBT(pDrop.getAmount(), pDrop.getNBTTag());
 
         } catch (Exception e) {
-            _mLogger.error(String.format(
-                    "Unable to generate ItemStack for drop ID %s (%s)", pDrop.getIdentifier(), pDrop.getItemName()));
+            _mLogger.error(
+                    String.format(
+                            "Unable to generate ItemStack for drop ID %s (%s)",
+                            pDrop.getIdentifier(),
+                            pDrop.getItemName()));
             tRet = null;
         }
 
@@ -682,18 +651,22 @@ public class LootGroupsHandler {
 
         tLootTag.setString(NBT_S_DROP_ID, pDrop.getIdentifier());
         tLootTag.setString(
-                NBT_S_DROP_ITGROUP, (pDrop.getItemDropGroup().isEmpty()) ? "- no group -" : pDrop.getItemDropGroup());
+                NBT_S_DROP_ITGROUP,
+                (pDrop.getItemDropGroup().isEmpty()) ? "- no group -" : pDrop.getItemDropGroup());
         tLootTag.setInteger(NBT_I_DROP_AMOUNT, pDrop.getAmount());
         tLootTag.setInteger(NBT_I_DROP_LIMIT, pDrop.getLimitedDropCount());
         tLootTag.setInteger(NBT_I_DROP_WEIGHT, pDrop.getChance());
         tLootTag.setBoolean(NBT_B_DROP_ISRND, pDrop.getIsRandomAmount());
         tLootTag.setBoolean(NBT_B_MERGETRASH, tItemGroup.getCombineWithTrash());
         tLootTag.setDouble(
-                NBT_D_DROPCHANCE_F0, calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF0));
+                NBT_D_DROPCHANCE_F0,
+                calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF0));
         tLootTag.setDouble(
-                NBT_D_DROPCHANCE_F1, calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF1));
+                NBT_D_DROPCHANCE_F1,
+                calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF1));
         tLootTag.setDouble(
-                NBT_D_DROPCHANCE_F2, calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF2));
+                NBT_D_DROPCHANCE_F2,
+                calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF2));
         tLootTag.setDouble(NBT_D_DROPCHANCE_F3, calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight));
 
         tTag.setTag(NBT_COMPOUND_LOOTBAGINFO, tLootTag);
@@ -726,23 +699,28 @@ public class LootGroupsHandler {
                     tToolTipInfo.add(getFrmStr(String.format("__lDropID :__r %s", tDropInfo.getString(NBT_S_DROP_ID))));
                     tToolTipInfo.add(
                             getFrmStr(String.format("__lAmount :__r %d", tDropInfo.getInteger(NBT_I_DROP_AMOUNT))));
-                    tToolTipInfo.add(
-                            getFrmStr(String.format("__lRandom :__r %b", tDropInfo.getBoolean(NBT_B_DROP_ISRND))));
-                    tToolTipInfo.add(
-                            getFrmStr(String.format("__lLimit  :__r %d", tDropInfo.getInteger(NBT_I_DROP_LIMIT))));
+                    tToolTipInfo
+                            .add(getFrmStr(String.format("__lRandom :__r %b", tDropInfo.getBoolean(NBT_B_DROP_ISRND))));
+                    tToolTipInfo
+                            .add(getFrmStr(String.format("__lLimit  :__r %d", tDropInfo.getInteger(NBT_I_DROP_LIMIT))));
                     tToolTipInfo.add(
                             getFrmStr(String.format("__lWeight :__r %d", tDropInfo.getInteger(NBT_I_DROP_WEIGHT))));
                     tToolTipInfo.add(
                             getFrmStr(String.format("__lIGroup :__r %s", tDropInfo.getString(NBT_S_DROP_ITGROUP))));
                     tToolTipInfo.add(getFrmStr("__b__6 == Trash/Fortune Behavior == __r"));
-                    tToolTipInfo.add(getFrmStr(
-                            String.format("__lMerges w Trash   :__r %b", tDropInfo.getBoolean(NBT_B_MERGETRASH))));
-                    tToolTipInfo.add(getFrmStr(String.format(
-                            "__lDrop %% (F0/1/2/3):__r %.2f | %.2f | %.2f | %.2f",
-                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F0),
-                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F1),
-                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F2),
-                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F3))));
+                    tToolTipInfo.add(
+                            getFrmStr(
+                                    String.format(
+                                            "__lMerges w Trash   :__r %b",
+                                            tDropInfo.getBoolean(NBT_B_MERGETRASH))));
+                    tToolTipInfo.add(
+                            getFrmStr(
+                                    String.format(
+                                            "__lDrop %% (F0/1/2/3):__r %.2f | %.2f | %.2f | %.2f",
+                                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F0),
+                                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F1),
+                                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F2),
+                                            tDropInfo.getDouble(NBT_D_DROPCHANCE_F3))));
 
                     pEvent.toolTip.addAll(tToolTipInfo);
                 }

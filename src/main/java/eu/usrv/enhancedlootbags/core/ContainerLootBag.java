@@ -1,23 +1,14 @@
 /*
-   Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2016 Stefan 'Namikon' Thomanek <sthomanek at gmail dot com> This program is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in
+ * the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package eu.usrv.enhancedlootbags.core;
 
-import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -25,12 +16,16 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import eu.usrv.enhancedlootbags.EnhancedLootBags;
+
 public class ContainerLootBag extends Container {
+
     /**
-     * This is a fake container class that is used to provide ghost-item slots for the lootbags.
-     * Inventory won't accept any item, nor can you take items from it
+     * This is a fake container class that is used to provide ghost-item slots for the lootbags. Inventory won't accept
+     * any item, nor can you take items from it
      */
     public static class FakeLootBagInventory implements IInventory {
+
         private final ItemStack[] mInventory;
         private final LootGroupsHandler mLGH = EnhancedLootBags.LootGroupHandler;
         private final int mSlotCount = 108;
@@ -108,8 +103,8 @@ public class ContainerLootBag extends Container {
     private static final int GUI_SLOTWIDTH = 18;
 
     /**
-     * Populate the GUI with inventory slots. This is now sort of dynamic; as we use static final's to
-     * define max/min for rows, and the start locations
+     * Populate the GUI with inventory slots. This is now sort of dynamic; as we use static final's to define max/min
+     * for rows, and the start locations
      *
      * @param inventoryPlayer
      * @param pLootGroupMeta
@@ -117,12 +112,12 @@ public class ContainerLootBag extends Container {
     public ContainerLootBag(InventoryPlayer inventoryPlayer, int pLootGroupMeta) {
         mInventory = new FakeLootBagInventory(pLootGroupMeta);
         for (int row = 0; row < GUI_ROWS; row++) {
-            for (int col = 0; col < GUI_COLUMNS; col++)
-                addSlotToContainer(new SlotLootBag(
-                        mInventory,
-                        col + row * GUI_COLUMNS,
-                        GUI_STARTX + GUI_SLOTWIDTH * col,
-                        GUI_STARTY + GUI_SLOTHEIGHT * row));
+            for (int col = 0; col < GUI_COLUMNS; col++) addSlotToContainer(
+                    new SlotLootBag(
+                            mInventory,
+                            col + row * GUI_COLUMNS,
+                            GUI_STARTX + GUI_SLOTWIDTH * col,
+                            GUI_STARTY + GUI_SLOTHEIGHT * row));
         }
         bindPlayerInventory(inventoryPlayer, 238, 256);
     }
@@ -132,11 +127,12 @@ public class ContainerLootBag extends Container {
 
         for (int playerInvRow = 0; playerInvRow < 3; playerInvRow++) {
             for (int playerInvCol = 0; playerInvCol < 9; playerInvCol++) {
-                addSlotToContainer(new Slot(
-                        pInventoryPlayer,
-                        playerInvCol + playerInvRow * 9 + 9,
-                        tLeftCol + playerInvCol * 18,
-                        pSizeY - (4 - playerInvRow) * 18 - 10));
+                addSlotToContainer(
+                        new Slot(
+                                pInventoryPlayer,
+                                playerInvCol + playerInvRow * 9 + 9,
+                                tLeftCol + playerInvCol * 18,
+                                pSizeY - (4 - playerInvRow) * 18 - 10));
             }
         }
 
@@ -146,11 +142,10 @@ public class ContainerLootBag extends Container {
     }
 
     /*
-     * Probably not required here; This prevents the player from moving the lootbag he just opened.
-     * Basically, it is meant to prevent you from moving the "inHand" item away, so the game is able to store
-     * the changed inventory. If you don't do that, one could dupe items with it. (But we don't allow add/remove of
-     * items here
-     * anyways, so not a problem
+     * Probably not required here; This prevents the player from moving the lootbag he just opened. Basically, it is
+     * meant to prevent you from moving the "inHand" item away, so the game is able to store the changed inventory. If
+     * you don't do that, one could dupe items with it. (But we don't allow add/remove of items here anyways, so not a
+     * problem
      */
     @Override
     public ItemStack slotClick(int slot, int button, int flag, EntityPlayer player) {
