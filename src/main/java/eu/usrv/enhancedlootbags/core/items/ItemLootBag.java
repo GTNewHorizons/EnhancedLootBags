@@ -33,7 +33,6 @@ import eu.usrv.enhancedlootbags.StatHelper;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
-import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 
@@ -233,22 +232,19 @@ public class ItemLootBag extends Item {
                     if (td.getIsRandomAmount()) tAmount = EnhancedLootBags.Rnd.nextInt(tAmount) + 1;
 
                     // _mLogger.info(String.format("PD fixed amount: %d", tAmount));
-                    // Try to get ItemDescriptor
-                    ItemDescriptor tIDesc = ItemDescriptor.fromString(td.getItemName(), true);
 
-                    // getItemStackwNBT accepts both empty and filled tags,
-                    // makes it easier to process here; As we don't have to
-                    // if/else-it
-                    if (tIDesc != null) {
-                        ItemStack tStackAll = tIDesc.getItemStackwNBT(tAmount, td.getNBTTag());
-                        while (tStackAll.stackSize > tStackAll.getMaxStackSize())
-                            tReturnList.add(tStackAll.splitStack(tStackAll.getMaxStackSize()));
-                        tReturnList.add(tStackAll);
-                        // _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
-                    } else _mLogger.error(
-                            String.format(
-                                    "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!",
-                                    td.getItemName()));
+                    ItemStack tStackAll = td.getItemStack(tAmount);
+                    if (tStackAll == null) {
+                        _mLogger.error(
+                                String.format(
+                                        "Skipping loot %s; Unable to get ItemStack. Make sure this item exists!",
+                                        td.getItemName()));
+                        continue;
+                    }
+                    while (tStackAll.stackSize > tStackAll.getMaxStackSize())
+                        tReturnList.add(tStackAll.splitStack(tStackAll.getMaxStackSize()));
+                    tReturnList.add(tStackAll);
+                    // _mLogger.info(String.format("ReturnList contains now %d items", tReturnList.size()));
                 }
 
                 // tReturnList contains now all ItemStacks that should drop for
