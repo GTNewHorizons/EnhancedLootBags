@@ -105,10 +105,13 @@ public class LootGroupsHandler {
     }
 
     private void InitStorage() {
-        if (_mPersistedDB == null) _mPersistedDB = new PersistedDataBase(
-                DimensionManager.getCurrentSaveRootDirectory(),
-                "LootBags.dat",
-                "LootBagStorage");
+        if (_mPersistedDB == null) {
+            _mPersistedDB = new PersistedDataBase(
+                    DimensionManager.getCurrentSaveRootDirectory(),
+                    "LootBags.dat",
+                    "LootBagStorage");
+            _mPersistedDB.Load();
+        }
     }
 
     /**
