@@ -128,7 +128,7 @@ public class LootGroups {
             mGroupIcon = pIcon;
         }
 
-        public ItemStack getLootBagItemStack() {
+        public ItemStack createLootBagItemStack() {
             return new ItemStack(LootGroupsHandler.getLootBagItem(), 1, getGroupID());
         }
 

@@ -44,7 +44,7 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
         public CachedLootBagRecipe(LootGroup lootGroup, ItemStack focusStack, int fortuneLevel) {
             this.lootGroup = lootGroup;
 
-            ItemStack lootBagStack = lootGroup.getLootBagItemStack();
+            ItemStack lootBagStack = lootGroup.createLootBagItemStack();
             if (fortuneLevel > 0) {
                 lootBagStack.addEnchantment(Enchantment.fortune, Math.min(fortuneLevel, FortuneLevel.LV3.level));
             }
@@ -206,7 +206,7 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
     @Override
     public void loadUsageRecipes(ItemStack ingredient) {
         for (LootGroup lootGroup : getLootGroups()) {
-            ItemStack lootBagStack = lootGroup.getLootBagItemStack();
+            ItemStack lootBagStack = lootGroup.createLootBagItemStack();
             if (NEIServerUtils.areStacksSameTypeCrafting(ingredient, lootBagStack)) {
                 arecipes.add(
                         new CachedLootBagRecipe(
