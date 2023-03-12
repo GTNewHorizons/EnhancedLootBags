@@ -91,17 +91,27 @@ public class LootGroupsHandler {
     public boolean isDropAllowedForPlayer(EntityPlayer pPlayer, LootGroup pGroup, Drop pDrop,
             boolean pUpdateDropCount) {
         InitStorage();
-
-        boolean tResult = true;
         String pDropUID = getUniqueLootIdentifier(pPlayer, pGroup, pDrop);
 
         if (pDrop.getLimitedDropCount() > 0) {
-            int tReceivedAmount = _mPersistedDB.getValueAsInt(pDropUID, 0);
-            if (tReceivedAmount >= pDrop.getLimitedDropCount()) tResult = false;
-            else _mPersistedDB.setValue(pDropUID, tReceivedAmount + 1);
+            int tReceivedAmount = getDropCount(pPlayer, pGroup, pDrop);
+            if (tReceivedAmount >= pDrop.getLimitedDropCount()) {
+                return false;
+            } else {
+                if (pUpdateDropCount) {
+                    _mPersistedDB.setValue(pDropUID, tReceivedAmount + 1);
+                }
+                return true;
+            }
         }
 
-        return tResult;
+        return true;
+    }
+
+    public int getDropCount(EntityPlayer pPlayer, LootGroup pGroup, Drop pDrop) {
+        InitStorage();
+        if (pDrop.getLimitedDropCount() <= 0) return 0;
+        return _mPersistedDB.getValueAsInt(getUniqueLootIdentifier(pPlayer, pGroup, pDrop), 0);
     }
 
     private void InitStorage() {
@@ -554,7 +564,15 @@ public class LootGroupsHandler {
                 // _mLogger.info(String.format("lg %s drops %d", lg.getGroupName(), lg.getDrops().size()));
                 for (Drop dr : lg.getDrops()) {
                     if (i < pSlotCount) {
-                        ItemStack tPendingStack = getStackFromDrop(dr);
+                        ItemStack tPendingStack = dr.getItemStack();
+                        if (tPendingStack == null) {
+                            _mLogger.error(
+                                    String.format(
+                                            "Unable to generate ItemStack for drop ID %s (%s)",
+                                            dr.getIdentifier(),
+                                            dr.getItemName()));
+                            continue;
+                        }
                         addDropInformationNBT(tPendingStack, dr, pLootGroupID);
                         tList[i] = tPendingStack;
                         // _mLogger.info(String.format("fakeInventory[%d]: %s", i, tList[i].getDisplayName()));
@@ -578,31 +596,14 @@ public class LootGroupsHandler {
     }
 
     public static int recalcWeightByFortune(int pOldWeight, int pFortuneLevel) {
-        int tRet = pOldWeight;
-        if (pFortuneLevel > 0) if (pFortuneLevel < 3)
-            tRet = pOldWeight - (int) Math.floor((double) pOldWeight * (0.33D * (double) pFortuneLevel));
-        else tRet = 0;
-
-        return tRet;
-    }
-
-    private ItemStack getStackFromDrop(Drop pDrop) {
-        ItemStack tRet = null;
-
-        try {
-            ItemDescriptor tDesc = ItemDescriptor.fromString(pDrop.getItemName());
-            if (tDesc != null) tRet = tDesc.getItemStackwNBT(pDrop.getAmount(), pDrop.getNBTTag());
-
-        } catch (Exception e) {
-            _mLogger.error(
-                    String.format(
-                            "Unable to generate ItemStack for drop ID %s (%s)",
-                            pDrop.getIdentifier(),
-                            pDrop.getItemName()));
-            tRet = null;
+        if (pFortuneLevel > 0) {
+            if (pFortuneLevel < 3) {
+                return pOldWeight - (int) Math.floor((double) pOldWeight * (0.33D * (double) pFortuneLevel));
+            } else {
+                return 0;
+            }
         }
-
-        return tRet;
+        return pOldWeight;
     }
 
     private static String NBT_COMPOUND_LOOTBAGINFO = "LootBagDrop";
@@ -629,24 +630,7 @@ public class LootGroupsHandler {
         NBTTagCompound tTag = pStack.getTagCompound();
         if (tTag == null) tTag = new NBTTagCompound();
 
-        int tTrashWeightF0 = -1;
-        int tTrashWeightF1 = -1;
-        int tTrashWeightF2 = -1;
         LootGroup tItemGroup = getGroupByID(pBagID);
-        int tLootGroupWeight = tItemGroup.getMaxWeight();
-
-        if (tTrashWeightF0 == -1 && pBagID != 0 && tItemGroup.getCombineWithTrash()) {
-            LootGroup tTrashGroup = getGroupByID(0);
-            tTrashWeightF0 = tTrashGroup.getMaxWeight();
-            tTrashWeightF1 = recalcWeightByFortune(tTrashWeightF0, 1);
-            tTrashWeightF2 = recalcWeightByFortune(tTrashWeightF0, 2);
-        }
-
-        if (pBagID == 0 || !tItemGroup.getCombineWithTrash()) {
-            tTrashWeightF0 = 0;
-            tTrashWeightF1 = 0;
-            tTrashWeightF2 = 0;
-        }
 
         // EnhancedLootBags.Logger.info( String.format( "GroupID: %d MaxWeight: %d", pBagID, tLootGroupWeight ) );
 
@@ -661,19 +645,27 @@ public class LootGroupsHandler {
         tLootTag.setInteger(NBT_I_DROP_WEIGHT, pDrop.getChance());
         tLootTag.setBoolean(NBT_B_DROP_ISRND, pDrop.getIsRandomAmount());
         tLootTag.setBoolean(NBT_B_MERGETRASH, tItemGroup.getCombineWithTrash());
-        tLootTag.setDouble(
-                NBT_D_DROPCHANCE_F0,
-                calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF0));
-        tLootTag.setDouble(
-                NBT_D_DROPCHANCE_F1,
-                calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF1));
-        tLootTag.setDouble(
-                NBT_D_DROPCHANCE_F2,
-                calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight + tTrashWeightF2));
-        tLootTag.setDouble(NBT_D_DROPCHANCE_F3, calcPercentageFromWeight(pDrop.getChance(), tLootGroupWeight));
+        tLootTag.setDouble(NBT_D_DROPCHANCE_F0, calcPercentageFromWeight(pDrop, tItemGroup, FortuneLevel.LV0));
+        tLootTag.setDouble(NBT_D_DROPCHANCE_F1, calcPercentageFromWeight(pDrop, tItemGroup, FortuneLevel.LV1));
+        tLootTag.setDouble(NBT_D_DROPCHANCE_F2, calcPercentageFromWeight(pDrop, tItemGroup, FortuneLevel.LV2));
+        tLootTag.setDouble(NBT_D_DROPCHANCE_F3, calcPercentageFromWeight(pDrop, tItemGroup, FortuneLevel.LV3));
 
         tTag.setTag(NBT_COMPOUND_LOOTBAGINFO, tLootTag);
         pStack.setTagCompound(tTag);
+    }
+
+    public double calcPercentageFromWeight(Drop drop, LootGroup lootGroup, FortuneLevel fortuneLevel) {
+        return calcPercentageFromWeight(
+                drop.getChance(),
+                lootGroup.getMaxWeight() + getTrashWeight(lootGroup, fortuneLevel));
+    }
+
+    private int getTrashWeight(LootGroup lootGroup, FortuneLevel fortuneLevel) {
+        if (lootGroup.getGroupID() == 0 || !lootGroup.getCombineWithTrash()) return 0;
+
+        LootGroup trashGroup = getGroupByID(0);
+        int trashWeight = trashGroup.getMaxWeight();
+        return recalcWeightByFortune(trashWeight, fortuneLevel.level);
     }
 
     private static double calcPercentageFromWeight(double pItemWeight, double pTotalWeight) {
@@ -733,5 +725,19 @@ public class LootGroupsHandler {
 
     private String getFrmStr(String pSource) {
         return TextFormatHelper.DecodeStringCodes(pSource);
+    }
+
+    public enum FortuneLevel {
+
+        LV0(0),
+        LV1(1),
+        LV2(2),
+        LV3(3);
+
+        public final int level;
+
+        FortuneLevel(int level) {
+            this.level = level;
+        }
     }
 }

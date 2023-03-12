@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -22,9 +23,12 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import net.minecraft.item.EnumRarity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
+import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "LootGroups")
@@ -124,6 +128,10 @@ public class LootGroups {
             mGroupIcon = pIcon;
         }
 
+        public ItemStack createLootBagItemStack() {
+            return new ItemStack(LootGroupsHandler.getLootBagItem(), 1, getGroupID());
+        }
+
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType
         public static class Drop {
@@ -162,6 +170,18 @@ public class LootGroups {
 
             public String getItemName() {
                 return mItemName;
+            }
+
+            @Nullable
+            public ItemStack getItemStack() {
+                return getItemStack(getAmount());
+            }
+
+            @Nullable
+            public ItemStack getItemStack(int amount) {
+                ItemDescriptor itemDesc = ItemDescriptor.fromString(getItemName(), true);
+                if (itemDesc == null) return null;
+                return itemDesc.getItemStackwNBT(amount, getNBTTag());
             }
 
             public int getAmount() {
