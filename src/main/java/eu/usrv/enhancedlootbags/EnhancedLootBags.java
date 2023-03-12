@@ -28,6 +28,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import eu.usrv.enhancedlootbags.config.ELBConfig;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.enhancedlootbags.integration.nei.IMCForNEI;
 import eu.usrv.enhancedlootbags.net.ELBDispatcher;
 import eu.usrv.enhancedlootbags.proxy.CommonProxy;
 import eu.usrv.enhancedlootbags.server.LootBagCommand;
@@ -94,6 +95,8 @@ public class EnhancedLootBags {
         FMLCommonHandler.instance().bus().register(LootGroupHandler);
         MinecraftForge.EVENT_BUS.register(LootGroupHandler);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
+
+        IMCForNEI.IMCSender();
     }
 
     /**

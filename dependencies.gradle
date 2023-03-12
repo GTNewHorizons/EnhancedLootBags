@@ -1,5 +1,7 @@
 // Add your dependencies here
 
 dependencies {
-    compile("com.github.GTNewHorizons:Yamcl:0.5.84:dev")
+    api("com.github.GTNewHorizons:Yamcl:0.5.84:dev")
+
+    implementation("com.github.GTNewHorizons:NotEnoughItems:2.3.36-GTNH:dev")
 }
