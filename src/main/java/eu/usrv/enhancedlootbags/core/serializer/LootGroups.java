@@ -12,6 +12,7 @@ package eu.usrv.enhancedlootbags.core.serializer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,7 +25,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
@@ -88,8 +88,12 @@ public class LootGroups {
             return mMaxWeight;
         }
 
-        @XmlTransient
-        private IIcon mGroupIcon;
+        @XmlAttribute(name = "LootbagIcon")
+        private String mGroupIconResource;
+
+        public Optional<String> getGroupIconResource() {
+            return Optional.ofNullable(mGroupIconResource);
+        }
 
         @XmlElement(name = "Loot")
         private List<LootGroups.LootGroup.Drop> mDrops;
@@ -118,14 +122,6 @@ public class LootGroups {
         public EnumRarity getGroupRarity() {
             if (mRarity >= 0 && mRarity < EnumRarity.values().length) return EnumRarity.values()[mRarity];
             else return EnumRarity.common;
-        }
-
-        public IIcon getGroupIcon() {
-            return mGroupIcon;
-        }
-
-        public void setGroupIcon(IIcon pIcon) {
-            mGroupIcon = pIcon;
         }
 
         public ItemStack createLootBagItemStack() {
