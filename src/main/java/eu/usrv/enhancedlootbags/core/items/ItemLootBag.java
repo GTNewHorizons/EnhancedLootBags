@@ -69,6 +69,7 @@ public class ItemLootBag extends Item {
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister pIconRegister) {
         _mIcoDefault = pIconRegister.registerIcon(String.format("%s:lootbag_generic", EnhancedLootBags.MODID));
+        _mGroupIcons.clear();
         for (LootGroup tGrp : _mLGHandler.getLootGroups().getLootTable()) {
             tGrp.getGroupIconResource()
                     .ifPresent(icon -> _mGroupIcons.put(tGrp.getGroupID(), pIconRegister.registerIcon(icon)));
