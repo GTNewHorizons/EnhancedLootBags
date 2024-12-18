@@ -10,7 +10,9 @@
 package eu.usrv.enhancedlootbags.core.items;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -39,6 +41,7 @@ import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 public class ItemLootBag extends Item {
 
     private IIcon _mIcoDefault;
+    private final Map<Integer, IIcon> _mGroupIcons = new HashMap<>();
     private final LootGroupsHandler _mLGHandler;
     private LogHelper _mLogger = EnhancedLootBags.Logger;
 
@@ -66,16 +69,16 @@ public class ItemLootBag extends Item {
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister pIconRegister) {
         _mIcoDefault = pIconRegister.registerIcon(String.format("%s:lootbag_generic", EnhancedLootBags.MODID));
-        // for (LootGroup tGrp : _mLGHandler.getLootGroups().getLootTable())
-        // tGrp.setGroupIcon(pIconRegister.registerIcon(String.format("%s:lootbags/lootbag_%d",
-        // Refstrings.MODID, tGrp.mGroupID)));
+        _mGroupIcons.clear();
+        for (LootGroup tGrp : _mLGHandler.getLootGroups().getLootTable()) {
+            tGrp.getGroupIconResource()
+                    .ifPresent(icon -> _mGroupIcons.put(tGrp.getGroupID(), pIconRegister.registerIcon(icon)));
+        }
     }
 
     @SideOnly(Side.CLIENT)
-    public IIcon getIconFromDamage(int par1) {
-        // LootGroup tGrp = getGroupByID(par1);
-        // return tGrp == null ? _mIcoDefault : tGrp.getGroupIcon();
-        return _mIcoDefault;
+    public IIcon getIconFromDamage(int meta) {
+        return _mGroupIcons.getOrDefault(meta, _mIcoDefault);
     }
 
     @Override
