@@ -23,7 +23,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -89,7 +88,8 @@ public class ItemLootBag extends Item {
         if (pStack.getItemDamage() == 0) tInnerName = StatHelper.get("string.default");
         else {
             LootGroup tGrp = _mLGHandler.getGroupByIDClient(pStack.getItemDamage());
-            tInnerName = tGrp == null ? "Error" : tGrp.getGroupName();
+            String tLocale = StatHelper.get("group." + tGrp.getGroupName().toLowerCase().replaceAll("\\s+", "_"));
+            tInnerName = tGrp == null ? "Error" : (tLocale == null ? tGrp.getGroupName() : tLocale);
         }
 
         return String.format(tReturn, tInnerName);
@@ -262,21 +262,16 @@ public class ItemLootBag extends Item {
         return tReturnList;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList,
             boolean pSomeBooleanValue) {
         if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
             int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pItemStack);
-            if (tFortuneLevel == 0) pTooltipList.add(
-                    String.format(
-                            "%sYou feel that a bit more \"Fortune\" might be a good idea...",
-                            EnumChatFormatting.DARK_PURPLE));
+            if (tFortuneLevel == 0) pTooltipList.add(StatHelper.get("string.not_fortuned"));
             else pTooltipList.add(
-                    String.format(
-                            "%sYour luck is increased by %d %%",
-                            EnumChatFormatting.GOLD,
-                            (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
+                    String.format(StatHelper.get("string.fortuned"), (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
         }
     }
 }
