@@ -24,6 +24,7 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import cpw.mods.fml.relauncher.Side;
@@ -88,8 +89,7 @@ public class ItemLootBag extends Item {
         if (pStack.getItemDamage() == 0) tInnerName = StatHelper.get("string.default");
         else {
             LootGroup tGrp = _mLGHandler.getGroupByIDClient(pStack.getItemDamage());
-            String tLocale = StatHelper.get("group." + tGrp.getGroupName().toLowerCase().replaceAll("\\s+", "_"));
-            tInnerName = tGrp == null ? "Error" : (tLocale == null ? tGrp.getGroupName() : tLocale);
+            tInnerName = tGrp == null ? "Error" : getLocalizedGroupName(tGrp.getGroupName());
         }
 
         return String.format(tReturn, tInnerName);
@@ -175,6 +175,11 @@ public class ItemLootBag extends Item {
             }
         }
         return pStack;
+    }
+
+    private String getLocalizedGroupName(String groupName) {
+        String localizedName = StatCollector.translateToLocal(groupName);
+        return localizedName != null ? localizedName : groupName;
     }
 
     private List<ItemStack> getRandomLootItems(EntityPlayer player, LootGroup pGrp) {

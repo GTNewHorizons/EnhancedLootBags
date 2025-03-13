@@ -59,7 +59,7 @@ The group ID is basically the metaID the lootbags will have; So if the lootbag h
 that will spawn items for that group will have the full ID 123:5. That's why you can't set a groupID below 1, or above 32767.
 A warning: Once you've defined a group ID, never change it. While lootbags won't cause corrupted worlds or crashes, recorded itemdrops are lost, as the GroupID is
 used to keep track of a players progress.
-As of FILL_IN_VERSION, you can localize group names of lootbags. For example, for `GroupName="Legendary - Unique"`, the localization key will be `enhancedlootbags.group.legendary_-_unique`. Provide your own lang file and load it with mods like TXLoader. If it's not found, the raw GroupName is displayed.
+As of FILL_IN_VERSION, you can localize group names of lootbags. For example, fill in `GroupName`s with full localization keys, and provide your own lang file and load it with mods like TXLoader. If it's not found, the raw GroupName is displayed.
 
 /lbag addgroup <Group ID>
 - Adds a new group with given ID as unique Identifier
