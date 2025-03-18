@@ -89,7 +89,7 @@ public class ItemLootBag extends Item {
         if (pStack.getItemDamage() == 0) tInnerName = StatHelper.get("string.default");
         else {
             LootGroup tGrp = _mLGHandler.getGroupByIDClient(pStack.getItemDamage());
-            tInnerName = tGrp == null ? "Error" : getLocalizedGroupName(tGrp.getGroupName());
+            tInnerName = tGrp == null ? "Error" : StatCollector.translateToLocal(tGrp.getGroupName());
         }
 
         return String.format(tReturn, tInnerName);
@@ -175,11 +175,6 @@ public class ItemLootBag extends Item {
             }
         }
         return pStack;
-    }
-
-    private String getLocalizedGroupName(String groupName) {
-        String localizedName = StatCollector.translateToLocal(groupName);
-        return localizedName != null ? localizedName : groupName;
     }
 
     private List<ItemStack> getRandomLootItems(EntityPlayer player, LootGroup pGrp) {
