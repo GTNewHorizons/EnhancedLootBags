@@ -15,6 +15,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
@@ -48,7 +49,7 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
             if (fortuneLevel > 0) {
                 lootBagStack.addEnchantment(Enchantment.fortune, Math.min(fortuneLevel, FortuneLevel.LV3.level));
             }
-            this.input.add(new PositionedStack(lootBagStack, 92, 4));
+            this.input.add(new PositionedStack(lootBagStack, 2, 4));
 
             List<List<Drop>> sortedDrops = getDropGroups(lootGroup);
             sortedDrops.sort(Comparator.comparingInt(d -> -getAccumulatedWeight(d)));
@@ -179,7 +180,7 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
 
     @Override
     public void loadTransferRects() {
-        transferRects.add(new RecipeTransferRect(new Rectangle(93, 20, 15, 13), getOverlayIdentifier()));
+        transferRects.add(new RecipeTransferRect(new Rectangle(3, 20, 15, 13), getOverlayIdentifier()));
     }
 
     @Override
@@ -224,15 +225,23 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
     @Override
     public void drawExtras(int recipe) {
         CachedLootBagRecipe cachedRecipe = (CachedLootBagRecipe) this.arecipes.get(recipe);
-        String toDraw;
-        if (cachedRecipe.lootGroup.getGroupID() != 0) {
-            toDraw = I18n.format(
-                    "enhancedlootbags.nei.recipe.contains_trash",
-                    translateBoolean(cachedRecipe.lootGroup.getCombineWithTrash()));
-        } else {
-            toDraw = I18n.format("enhancedlootbags.nei.recipe.is_trash");
+        if (cachedRecipe.lootGroup.getCombineWithTrash() && !isEnchantedLootbagIngredient(cachedRecipe)) {
+            drawTrashBagInformation(cachedRecipe);
         }
-        Minecraft.getMinecraft().fontRenderer.drawString(toDraw, 2, 216, 0x000000);
+    }
+
+    private static boolean isEnchantedLootbagIngredient(CachedLootBagRecipe cachedRecipe) {
+        List<PositionedStack> ingredients = cachedRecipe.getIngredients();
+        if (ingredients.isEmpty()) return false;
+        int fortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, ingredients.get(0).item);
+        return fortuneLevel == 3;
+    }
+
+    private static void drawTrashBagInformation(CachedLootBagRecipe cachedRecipe) {
+        String trashBagHeader = StatCollector.translateToLocal("enhancedlootbags.nei.recipe.also_has_loot_from");
+        GuiDraw.drawString(trashBagHeader, 24, 4, 0x000000, false);
+        LootGroup trashBag = EnhancedLootBags.LootGroupHandler.getGroupByID(cachedRecipe.lootGroup.getTrashGroup());
+        GuiDraw.drawString(StatCollector.translateToLocal(trashBag.getGroupName()), 24, 13, 0x000000, false);
     }
 
     @Override
@@ -286,7 +295,4 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
         return I18n.format("enhancedlootbags.nei.category");
     }
 
-    private static String translateBoolean(boolean b) {
-        return b ? I18n.format("enhancedlootbags.nei.recipe.true") : I18n.format("enhancedlootbags.nei.recipe.false");
-    }
 }

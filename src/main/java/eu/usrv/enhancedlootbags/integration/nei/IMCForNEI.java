@@ -8,7 +8,7 @@ import eu.usrv.enhancedlootbags.EnhancedLootBags;
 public class IMCForNEI {
 
     public static void IMCSender() {
-        sendHandler(EnhancedLootBags.MODID, "enhancedlootbags:lootbag", 207, 256);
+        sendHandler(EnhancedLootBags.MODID, "enhancedlootbags:lootbag", 207, 238);
     }
 
     @SuppressWarnings("SameParameterValue")
