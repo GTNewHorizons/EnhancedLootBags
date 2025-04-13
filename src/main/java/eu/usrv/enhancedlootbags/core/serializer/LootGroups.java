@@ -76,6 +76,9 @@ public class LootGroups {
         @XmlAttribute(name = "CombineTrashGroup")
         protected boolean mCombineWithTrash;
 
+        @XmlAttribute(name = "TrashGroup")
+        protected int mTrashGroup;
+
         @XmlTransient
         private int mMaxWeight = -1;
 
@@ -117,6 +120,14 @@ public class LootGroups {
 
         public boolean getCombineWithTrash() {
             return mCombineWithTrash;
+        }
+
+        public int getTrashGroup() {
+            return mTrashGroup;
+        }
+
+        public void setTrashGroup(int mTrashGroup) {
+            this.mTrashGroup = mTrashGroup;
         }
 
         public EnumRarity getGroupRarity() {

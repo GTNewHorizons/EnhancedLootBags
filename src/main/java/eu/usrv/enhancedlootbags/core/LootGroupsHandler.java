@@ -189,7 +189,7 @@ public class LootGroupsHandler {
             else {
                 tReturnGroup = _mBufferedLootGroups.get(tMergedGroupID);
                 if (tReturnGroup == null) {
-                    LootGroup tTrashGroup = getGroupByID(0);
+                    LootGroup tTrashGroup = getGroupByID(tTargetGroup.getTrashGroup());
                     if (tTrashGroup != null) {
                         // Copy the original group
                         LootGroup tMerged = _mLGF.copyLootGroup(tTargetGroup);
@@ -607,7 +607,7 @@ public class LootGroupsHandler {
     private int getTrashWeight(LootGroup lootGroup, FortuneLevel fortuneLevel) {
         if (lootGroup.getGroupID() == 0 || !lootGroup.getCombineWithTrash()) return 0;
 
-        LootGroup trashGroup = getGroupByID(0);
+        LootGroup trashGroup = getGroupByID(lootGroup.getTrashGroup());
         int trashWeight = trashGroup.getMaxWeight();
         return recalcWeightByFortune(trashWeight, fortuneLevel.level);
     }
