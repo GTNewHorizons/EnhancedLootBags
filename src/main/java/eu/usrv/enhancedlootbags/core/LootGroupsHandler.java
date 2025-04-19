@@ -189,7 +189,7 @@ public class LootGroupsHandler {
             else {
                 tReturnGroup = _mBufferedLootGroups.get(tMergedGroupID);
                 if (tReturnGroup == null) {
-                    LootGroup tTrashGroup = getGroupByID(0);
+                    LootGroup tTrashGroup = getGroupByID(tTargetGroup.getTrashGroup());
                     if (tTrashGroup != null) {
                         // Copy the original group
                         LootGroup tMerged = _mLGF.copyLootGroup(tTargetGroup);
@@ -207,8 +207,6 @@ public class LootGroupsHandler {
                         // Set as return group
                         tReturnGroup = tMerged;
                     } else {
-                        // _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it",
-                        // pGroupID));
                         tReturnGroup = tTargetGroup;
                     }
                 }
@@ -224,20 +222,6 @@ public class LootGroupsHandler {
     private String getFormattedGroupID(int pGroupID, int pFortuneLevel) {
         return String.format("%d-%d", pGroupID, pFortuneLevel);
     }
-
-    /*
-     * public LootGroup getMergedGroupFromIDX( int pGroupID, int pFortuneLevel ) { LootGroup tReturnGroup = null;
-     * LootGroup tTargetGroup = getGroupByID( pGroupID ); if( tTargetGroup != null ) { if(
-     * !tTargetGroup.getCombineWithTrash() || ( EnhancedLootBags.ELBCfg.AllowFortuneBags && pFortuneLevel == 3 ) )
-     * tReturnGroup = tTargetGroup; else { tReturnGroup = _mBufferedLootGroups.get( pGroupID ); if( tReturnGroup == null
-     * ) { LootGroup tTrashGroup = getGroupByID( 0 ); if( tTrashGroup != null ) { // Copy the original group LootGroup
-     * tMerged = _mLGF.copyLootGroup( tTargetGroup ); // Add a copy for each trash loot to the drop list for( Drop tDr :
-     * tTrashGroup.getDrops() ) tMerged.getDrops().add( _mLGF.copyDrop( tDr ) ); // Store the new list in our buffer
-     * _mBufferedLootGroups.put( pGroupID, tMerged ); // Set as return group tReturnGroup = tMerged; } else { //
-     * _mLogger.warn(String.format("Trashgroup is empty, but GroupID %d is set to merge with it", // pGroupID));
-     * tReturnGroup = tTargetGroup; } } } } else _mLogger.error( String.format(
-     * "TargetGroup for ID returned null, this shouldn't happen. ID: %d", pGroupID ) ); return tReturnGroup; }
-     */
 
     public LootGroup getGroupByIDClient(int pGroupID) {
         for (LootGroup tGrp : _mClientSideLootGroups.getLootTable()) if (tGrp.getGroupID() == pGroupID) return tGrp;
@@ -260,8 +244,6 @@ public class LootGroupsHandler {
             Marshaller jaxMarsh = tJaxbCtx.createMarshaller();
             jaxMarsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxMarsh.marshal(_mLootGroups, new FileOutputStream(_mConfigFileName, false));
-
-            // _mLogger.debug("[LootBags] Config file written");
             return true;
         } catch (Exception e) {
             _mLogger.error("[LootBags] Unable to create new LootBags.xml. Is the config directory write protected?");
@@ -280,10 +262,8 @@ public class LootGroupsHandler {
             return;
         }
 
-        // _mLogger.debug("[LootBags] LootBags entering state: LOAD CONFIG");
         File tConfigFile = new File(_mConfigFileName);
         if (!tConfigFile.exists()) {
-            // _mLogger.debug("[LootBags] LootBags Config file not found, assuming first-start. Creating default one");
             InitSampleConfig();
             SaveLootGroups();
         }
@@ -297,7 +277,6 @@ public class LootGroupsHandler {
             InitSampleConfig();
         }
         _mInitialized = true;
-        // dumpDebugInfo("LoadConfig");
     }
 
     /**
@@ -319,14 +298,6 @@ public class LootGroupsHandler {
         return tState;
     }
 
-    /*
-     * public void dumpDebugInfo(String pArea) { _mLogger.info(String.format("Area: %s", pArea));
-     * _mLogger.info("====== Dumping LootTables ======"); for (LootGroup tlg : _mLootGroups.getLootTable()) { for (Drop
-     * tdr : tlg.getDrops()) _mLogger.info(String.format("Group: %s Drop %s", tlg.getGroupName(), tdr.getItemName())); }
-     * _mLogger.info("====== States ======"); _mLogger.info(String.format("Initialized: %s", _mInitialized ? "true" :
-     * "false")); }
-     */
-
     private static Item mLootBagItem = null;
 
     public static Item getLootBagItem() {
@@ -347,24 +318,6 @@ public class LootGroupsHandler {
 
             LootGroups tReducedGroup = _mLGF.copy(_mLootGroups, false);
             jaxMarsh.marshal(tReducedGroup, tSW);
-
-            // dumpDebugInfo("getClientSideXMLStream");
-
-            return tSW.toString();
-        } catch (Exception e) {
-            _mLogger.error("[LootBags] Unable to serialize object");
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    private String getXMLStream() {
-        try {
-            StringWriter tSW = new StringWriter();
-            JAXBContext tJaxbCtx = JAXBContext.newInstance(LootGroups.class);
-            Marshaller jaxMarsh = tJaxbCtx.createMarshaller();
-            jaxMarsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxMarsh.marshal(_mLootGroups, tSW);
 
             return tSW.toString();
         } catch (Exception e) {
@@ -447,7 +400,6 @@ public class LootGroupsHandler {
     private boolean ReloadLootGroups(String pXMLContent) {
         boolean tResult = false;
 
-        // _mLogger.debug("[LootBags] LootGroupsHandler will now try to load its configuration");
         try {
             JAXBContext tJaxbCtx = JAXBContext.newInstance(LootGroups.class);
             Unmarshaller jaxUnmarsh = tJaxbCtx.createUnmarshaller();
@@ -458,11 +410,9 @@ public class LootGroupsHandler {
             if (tLocalConfig) {
                 File tConfigFile = new File(_mConfigFileName);
                 tNewItemCollection = (LootGroups) jaxUnmarsh.unmarshal(tConfigFile);
-                // _mLogger.debug("[LootBags] Config file has been loaded. Entering Verify state");
             } else {
                 StringReader reader = new StringReader(pXMLContent);
                 tNewItemCollection = (LootGroups) jaxUnmarsh.unmarshal(reader);
-                // _mLogger.debug("[LootBags] Received Server-Config. Entering Verify state");
             }
 
             if (!VerifyConfig(tNewItemCollection, tLocalConfig)) {
@@ -531,7 +481,7 @@ public class LootGroupsHandler {
      * defined, the list will only contain the given item
      *
      * @param pGrp
-     * @param tSelectedDrop
+     * @param pSelectedDrop
      * @return
      */
     public List<Drop> getItemGroupDrops(LootGroup pGrp, Drop pSelectedDrop) {
@@ -555,13 +505,11 @@ public class LootGroupsHandler {
      * @return
      */
     public ItemStack[] createFakeInventoryFromID(int pLootGroupID, int pSlotCount) {
-        // dumpDebugInfo("createFakeInventoryFromID");
         ItemStack[] tList = new ItemStack[pSlotCount];
         int i = 0;
         try {
             LootGroup lg = getGroupByID(pLootGroupID);
             if (lg != null) {
-                // _mLogger.info(String.format("lg %s drops %d", lg.getGroupName(), lg.getDrops().size()));
                 for (Drop dr : lg.getDrops()) {
                     if (i < pSlotCount) {
                         ItemStack tPendingStack = dr.getItemStack();
@@ -575,7 +523,6 @@ public class LootGroupsHandler {
                         }
                         addDropInformationNBT(tPendingStack, dr, pLootGroupID);
                         tList[i] = tPendingStack;
-                        // _mLogger.info(String.format("fakeInventory[%d]: %s", i, tList[i].getDisplayName()));
                         i++;
                     } else {
                         _mLogger.warn(
@@ -591,7 +538,6 @@ public class LootGroupsHandler {
             _mLogger.error("Unable to build Itemlist for Lootbag GUI");
             e.printStackTrace();
         }
-        // _mLogger.info(String.format("fakeInventory contains %d items", i));
         return tList;
     }
 
@@ -632,8 +578,6 @@ public class LootGroupsHandler {
 
         LootGroup tItemGroup = getGroupByID(pBagID);
 
-        // EnhancedLootBags.Logger.info( String.format( "GroupID: %d MaxWeight: %d", pBagID, tLootGroupWeight ) );
-
         NBTTagCompound tLootTag = tTag.getCompoundTag(NBT_COMPOUND_LOOTBAGINFO);
 
         tLootTag.setString(NBT_S_DROP_ID, pDrop.getIdentifier());
@@ -663,7 +607,7 @@ public class LootGroupsHandler {
     private int getTrashWeight(LootGroup lootGroup, FortuneLevel fortuneLevel) {
         if (lootGroup.getGroupID() == 0 || !lootGroup.getCombineWithTrash()) return 0;
 
-        LootGroup trashGroup = getGroupByID(0);
+        LootGroup trashGroup = getGroupByID(lootGroup.getTrashGroup());
         int trashWeight = trashGroup.getMaxWeight();
         return recalcWeightByFortune(trashWeight, fortuneLevel.level);
     }
@@ -675,8 +619,6 @@ public class LootGroupsHandler {
 
         tRet = (double) Math.round(tRet * 100) / 100;
 
-        // EnhancedLootBags.Logger.info( String.format( "p1: %.2f p2: %.2f ret: %.2f", pItemWeight, pTotalWeight, tRet )
-        // );
         return tRet;
     }
 
