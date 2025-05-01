@@ -101,7 +101,7 @@ public class ItemLootBag extends Item {
             ItemStack s1 = new ItemStack(this, 1, tGrp.getGroupID());
             par3List.add(s1);
 
-            if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
+            if (EnhancedLootBags.ELBCfg.AllowFortuneBags && tGrp.getCombineWithTrash()) {
                 ItemStack s2 = s1.copy();
                 s2.addEnchantment(Enchantment.fortune, 3);
                 par3List.add(s2);
