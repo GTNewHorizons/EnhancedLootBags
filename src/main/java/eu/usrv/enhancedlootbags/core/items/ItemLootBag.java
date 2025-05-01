@@ -267,7 +267,9 @@ public class ItemLootBag extends Item {
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack pItemStack, EntityPlayer pEntityPlayer, List pTooltipList,
             boolean pSomeBooleanValue) {
-        if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
+        if (!_mLGHandler.getGroupByID(pItemStack.getItemDamage()).getCombineWithTrash()) {
+            pTooltipList.add(StatHelper.get("string.no_fortune_needed"));
+        } else if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
             int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pItemStack);
             if (tFortuneLevel == 0) pTooltipList.add(StatHelper.get("string.not_fortuned"));
             else pTooltipList.add(
