@@ -45,6 +45,7 @@ public class ItemLootBag extends Item {
     private final Map<Integer, IIcon> _mGroupIcons = new HashMap<>();
     private final LootGroupsHandler _mLGHandler;
     private LogHelper _mLogger = EnhancedLootBags.Logger;
+    private final boolean isDreamcraftLoaded = Loader.isModLoaded("dreamcraft");
 
     public ItemLootBag(LootGroupsHandler pLGHandler) {
         setHasSubtypes(true);
@@ -274,7 +275,7 @@ public class ItemLootBag extends Item {
             int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pItemStack);
             if (tFortuneLevel == 0) {
                 pTooltipList.add(StatHelper.get("string.not_fortuned"));
-                if (Loader.isModLoaded("dreamcraft")) {
+                if (isDreamcraftLoaded) {
                     pTooltipList.add(StatCollector.translateToLocal("enhancedlootbags.dreamcraft.enchantment_tip"));
                 }
             } else {
