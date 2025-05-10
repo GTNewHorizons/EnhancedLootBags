@@ -44,7 +44,7 @@ public class EnhancedLootBags {
 
     public static CreativeTabs ELBCreativeTab;
     public static final String MODID = "enhancedlootbags";
-    public static final String VERSION = "GRADLETOKEN_VERSION";
+    public static final String VERSION = ELBTags.VERSION;
     public static final String MODNAME = "Enhanced LootBags";
     public static final String NICEFOLDERNAME = "EnhancedLootBags";
     public static LootGroupsHandler LootGroupHandler = null;
