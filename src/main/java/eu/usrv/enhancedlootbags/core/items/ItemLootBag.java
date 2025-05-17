@@ -45,7 +45,7 @@ public class ItemLootBag extends Item {
     private final Map<Integer, IIcon> _mGroupIcons = new HashMap<>();
     private final LootGroupsHandler _mLGHandler;
     private LogHelper _mLogger = EnhancedLootBags.Logger;
-    private final boolean isDreamcraftLoaded = Loader.isModLoaded("dreamcraft");
+    private static final boolean isDreamcraftLoaded = Loader.isModLoaded("dreamcraft");
 
     public ItemLootBag(LootGroupsHandler pLGHandler) {
         setHasSubtypes(true);
