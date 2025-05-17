@@ -27,6 +27,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
@@ -44,6 +45,7 @@ public class ItemLootBag extends Item {
     private final Map<Integer, IIcon> _mGroupIcons = new HashMap<>();
     private final LootGroupsHandler _mLGHandler;
     private LogHelper _mLogger = EnhancedLootBags.Logger;
+    private static final boolean isDreamcraftLoaded = Loader.isModLoaded("dreamcraft");
 
     public ItemLootBag(LootGroupsHandler pLGHandler) {
         setHasSubtypes(true);
@@ -271,9 +273,17 @@ public class ItemLootBag extends Item {
             pTooltipList.add(StatHelper.get("string.no_fortune_needed"));
         } else if (EnhancedLootBags.ELBCfg.AllowFortuneBags) {
             int tFortuneLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, pItemStack);
-            if (tFortuneLevel == 0) pTooltipList.add(StatHelper.get("string.not_fortuned"));
-            else pTooltipList.add(
-                    String.format(StatHelper.get("string.fortuned"), (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
+            if (tFortuneLevel == 0) {
+                pTooltipList.add(StatHelper.get("string.not_fortuned"));
+                if (isDreamcraftLoaded) {
+                    pTooltipList.add(StatCollector.translateToLocal("enhancedlootbags.dreamcraft.enchantment_tip"));
+                }
+            } else {
+                pTooltipList.add(
+                        String.format(
+                                StatHelper.get("string.fortuned"),
+                                (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
+            }
         }
     }
 }
