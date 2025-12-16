@@ -8,7 +8,7 @@ import eu.usrv.enhancedlootbags.EnhancedLootBags;
 public class IMCForNEI {
 
     public static void IMCSender() {
-        sendHandler(EnhancedLootBags.MODID, "enhancedlootbags:lootbag", 207, 238);
+        sendHandler(EnhancedLootBags.MODID, "enhancedlootbags:lootbag", 166, 238);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -19,7 +19,7 @@ public class IMCForNEI {
         NBT.setString("modId", EnhancedLootBags.MODID);
         NBT.setBoolean("modRequired", true);
         NBT.setString("itemName", stack);
-        NBT.setInteger("yShift", 0);
+        NBT.setInteger("yShift", 2);
         NBT.setInteger("handlerWidth", width);
         NBT.setInteger("handlerHeight", height);
         NBT.setInteger("maxRecipesPerPage", 1);

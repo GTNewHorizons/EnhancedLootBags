@@ -3,5 +3,5 @@
 dependencies {
     api("com.github.GTNewHorizons:Yamcl:0.7.1:dev")
 
-    implementation("com.github.GTNewHorizons:NotEnoughItems:2.7.57-GTNH:dev")
+    implementation("com.github.GTNewHorizons:NotEnoughItems:2.8.19-GTNH:dev")
 }

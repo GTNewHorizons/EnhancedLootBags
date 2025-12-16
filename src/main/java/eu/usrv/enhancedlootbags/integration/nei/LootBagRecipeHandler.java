@@ -32,13 +32,14 @@ import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
 
 public class LootBagRecipeHandler extends TemplateRecipeHandler {
 
-    private static final int SLOT_NUM_X = 11;
+    private static final int SLOT_NUM_X = 9;
     private static final DecimalFormat chanceFormat = new DecimalFormat("##0.##");
 
     private class CachedLootBagRecipe extends CachedRecipe {
 
         private final List<PositionedStack> input = new ArrayList<>();
         private final List<PositionedStack> outputs = new ArrayList<>();
+        private int rows = 0;
         private final LootGroup lootGroup;
         private Point focus;
 
@@ -49,9 +50,9 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
             if (fortuneLevel > 0) {
                 lootBagStack.addEnchantment(Enchantment.fortune, Math.min(fortuneLevel, FortuneLevel.LV3.level));
             }
-            this.input.add(new PositionedStack(lootBagStack, 2, 4));
+            this.input.add(new PositionedStack(lootBagStack, 3, 4));
 
-            List<List<Drop>> sortedDrops = getDropGroups(lootGroup);
+            final List<List<Drop>> sortedDrops = getDropGroups(lootGroup);
             sortedDrops.sort(Comparator.comparingInt(d -> -getAccumulatedWeight(d)));
 
             int row = 0;
@@ -88,6 +89,8 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
                     this.focus = new Point(xPos - 1, yPos - 1);
                 }
             }
+
+            this.rows = col == 0 ? row - 1 : row;
         }
 
         private void addTooltip(Drop drop, List<String> tooltip, List<Drop> dropGroup, int fortuneLevel) {
@@ -180,7 +183,7 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
 
     @Override
     public void loadTransferRects() {
-        transferRects.add(new RecipeTransferRect(new Rectangle(3, 20, 15, 13), getOverlayIdentifier()));
+        transferRects.add(new RecipeTransferRect(new Rectangle(4, 20, 15, 13), getOverlayIdentifier()));
     }
 
     @Override
@@ -245,15 +248,18 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
     }
 
     @Override
+    public int getRecipeHeight(int recipeIndex) {
+        return 32 + 18 * (((CachedLootBagRecipe) this.arecipes.get(recipeIndex)).rows + 1) + 33;
+    }
+
+    @Override
     public void drawBackground(int recipeIndex) {
         GL11.glColor4f(1, 1, 1, 1);
         GuiDraw.changeTexture(getGuiTexture());
-        GuiDraw.drawTexturedModalRect(0, 0, 5, 11, 207, 232);
+        GuiDraw.drawTexturedModalRect(2, 3, 7, 14, 162, 47);
 
-        CachedLootBagRecipe recipe = (CachedLootBagRecipe) this.arecipes.get(recipeIndex);
-        Point focus = recipe.focus;
-        if (focus != null) {
-            GuiDraw.drawTexturedModalRect(focus.x, focus.y, 212, 0, 18, 18);
+        for (int r = 1; r <= ((CachedLootBagRecipe) this.arecipes.get(recipeIndex)).rows; r++) {
+            GuiDraw.drawTexturedModalRect(2, 32 + 18 * r, 7, 43, 162, 18);
         }
     }
 
