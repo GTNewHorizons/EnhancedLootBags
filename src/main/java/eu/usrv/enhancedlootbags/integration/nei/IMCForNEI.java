@@ -1,9 +1,8 @@
 package eu.usrv.enhancedlootbags.integration.nei;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 import cpw.mods.fml.common.event.FMLInterModComms;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class IMCForNEI {
 
@@ -23,6 +22,8 @@ public class IMCForNEI {
         NBT.setInteger("handlerWidth", width);
         NBT.setInteger("handlerHeight", height);
         NBT.setInteger("maxRecipesPerPage", 1);
+        NBT.setBoolean("showOverlayButton", false);
+        NBT.setBoolean("showFavoritesButton", false);
         FMLInterModComms.sendMessage("NotEnoughItems", "registerHandlerInfo", NBT);
     }
 }
