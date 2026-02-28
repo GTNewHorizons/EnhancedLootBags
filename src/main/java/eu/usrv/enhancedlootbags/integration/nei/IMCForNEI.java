@@ -1,8 +1,9 @@
 package eu.usrv.enhancedlootbags.integration.nei;
 
+import net.minecraft.nbt.NBTTagCompound;
+
 import cpw.mods.fml.common.event.FMLInterModComms;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
-import net.minecraft.nbt.NBTTagCompound;
 
 public class IMCForNEI {
 
