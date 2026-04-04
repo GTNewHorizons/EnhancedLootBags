@@ -22,7 +22,7 @@ public class IMCForNEI {
         NBT.setInteger("yShift", 2);
         NBT.setInteger("handlerWidth", width);
         NBT.setInteger("handlerHeight", height);
-        NBT.setInteger("maxRecipesPerPage", 1);
+        NBT.setBoolean("multipleWidgetsAllowed", true);
         NBT.setBoolean("showOverlayButton", false);
         NBT.setBoolean("showFavoritesButton", false);
         FMLInterModComms.sendMessage("NotEnoughItems", "registerHandlerInfo", NBT);

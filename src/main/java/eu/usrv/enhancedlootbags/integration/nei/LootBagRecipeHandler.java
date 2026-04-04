@@ -249,7 +249,7 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
 
     @Override
     public int getRecipeHeight(int recipeIndex) {
-        return 32 + 18 * (((CachedLootBagRecipe) this.arecipes.get(recipeIndex)).rows + 1) + 33;
+        return 32 + 18 * (((CachedLootBagRecipe) this.arecipes.get(recipeIndex)).rows + 1) + 6;
     }
 
     @Override
