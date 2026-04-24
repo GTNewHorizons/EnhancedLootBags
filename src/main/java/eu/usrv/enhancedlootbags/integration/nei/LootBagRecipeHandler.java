@@ -244,7 +244,14 @@ public class LootBagRecipeHandler extends TemplateRecipeHandler {
         String trashBagHeader = StatCollector.translateToLocal("enhancedlootbags.nei.recipe.also_has_loot_from");
         GuiDraw.drawString(trashBagHeader, 24, 4, 0x000000, false);
         LootGroup trashBag = EnhancedLootBags.LootGroupHandler.getGroupByID(cachedRecipe.lootGroup.getTrashGroup());
-        GuiDraw.drawString(StatCollector.translateToLocal(trashBag.getGroupName()), 24, 13, 0x000000, false);
+        GuiDraw.drawString(
+                StatCollector.translateToLocalFormatted(
+                        "enhancedlootbags.nei.recipe.trash_group_name",
+                        StatCollector.translateToLocal(trashBag.getGroupName())),
+                24,
+                13,
+                0x000000,
+                false);
     }
 
     @Override
