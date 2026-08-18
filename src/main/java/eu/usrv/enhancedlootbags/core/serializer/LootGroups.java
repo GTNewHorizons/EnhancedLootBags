@@ -26,8 +26,10 @@ import javax.xml.bind.annotation.XmlType;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
 
+import cpw.mods.fml.common.Loader;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.enhancedlootbags.core.MaterialLibNames;
 import eu.usrv.yamcore.auxiliary.ItemDescriptor;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -139,9 +141,17 @@ public class LootGroups {
             return new ItemStack(LootGroupsHandler.getLootBagItem(), 1, getGroupID());
         }
 
+        /// A single item a lootbag can yield.
+        ///
+        /// `ItemName` accepts the `ml:<Material>:<shapeToken>` form beside `modid:item[:meta]`; see
+        /// [MaterialLibNames]. The MaterialLib form stays verbatim in the attribute so a marshal writes back what the
+        /// config author wrote, and the concrete name it stands for is resolved once on first use.
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType
         public static class Drop {
+
+            private static final String MATERIALLIB_PREFIX = "ml:";
+            private static final boolean MATERIALLIB_LOADED = Loader.isModLoaded(EnhancedLootBags.MATERIALLIB_MODID);
 
             @XmlAttribute(name = "Identifier")
             protected String mDropID;
@@ -167,6 +177,12 @@ public class LootGroups {
             @XmlAttribute(name = "RandomAmount")
             protected boolean mIsRandomAmount;
 
+            @XmlTransient
+            private String mResolvedItemName;
+
+            @XmlTransient
+            private boolean mMaterialLibResolved;
+
             public String getIdentifier() {
                 return mDropID;
             }
@@ -179,6 +195,23 @@ public class LootGroups {
                 return mItemName;
             }
 
+            /// Whether `ItemName` is written in the `ml:<Material>:<shapeToken>` form.
+            public boolean isMaterialLibDrop() {
+                return mItemName != null && mItemName.startsWith(MATERIALLIB_PREFIX);
+            }
+
+            /// The `modid:item[:meta]` name this drop points at, or null when a MaterialLib name matches nothing. A
+            /// MaterialLib name resolves only from init onwards.
+            @Nullable
+            public String getResolvedItemName() {
+                if (!isMaterialLibDrop()) return mItemName;
+                if (!mMaterialLibResolved) {
+                    if (MATERIALLIB_LOADED) mResolvedItemName = MaterialLibNames.canonicalize(mItemName);
+                    mMaterialLibResolved = true;
+                }
+                return mResolvedItemName;
+            }
+
             @Nullable
             public ItemStack getItemStack() {
                 return getItemStack(getAmount());
@@ -186,7 +219,9 @@ public class LootGroups {
 
             @Nullable
             public ItemStack getItemStack(int amount) {
-                ItemDescriptor itemDesc = ItemDescriptor.fromString(getItemName(), true);
+                String tItemName = getResolvedItemName();
+                if (tItemName == null) return null;
+                ItemDescriptor itemDesc = ItemDescriptor.fromString(tItemName, true);
                 if (itemDesc == null) return null;
                 return itemDesc.getItemStackwNBT(amount, getNBTTag());
             }

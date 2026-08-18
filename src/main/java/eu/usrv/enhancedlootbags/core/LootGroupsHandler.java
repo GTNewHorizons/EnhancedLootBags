@@ -59,6 +59,7 @@ public class LootGroupsHandler {
     private eu.usrv.yamcore.persisteddata.PersistedDataBase _mPersistedDB = null;
 
     private boolean _mInitialized = false;
+    private boolean _mMaterialLibReady = false;
 
     public LootGroups getLootGroups() {
         return _mLootGroups;
@@ -365,13 +366,18 @@ public class LootGroupsHandler {
                 }
 
                 for (Drop Y : X.getDrops()) {
-                    if (ItemDescriptor.fromString(Y.getItemName()) == null) {
-                        _mLogger.error(
-                                String.format(
-                                        "[LootBags] In ItemDropID: [%s], can't find item [%s]",
-                                        Y.getIdentifier(),
-                                        Y.getItemName()));
-                        tSuccess = false; // Maybe add the nothing-item here? Or the invalid-item item from HQM
+                    // A MaterialLib name cannot be looked up during the preInit load; resolveMaterialLibNames
+                    // reports on those once MaterialLib's registries are readable.
+                    if (!Y.isMaterialLibDrop() || _mMaterialLibReady) {
+                        String tItemName = Y.getResolvedItemName();
+                        if (tItemName == null || ItemDescriptor.fromString(tItemName) == null) {
+                            _mLogger.error(
+                                    String.format(
+                                            "[LootBags] In ItemDropID: [%s], can't find item [%s]",
+                                            Y.getIdentifier(),
+                                            Y.getItemName()));
+                            tSuccess = false; // Maybe add the nothing-item here? Or the invalid-item item from HQM
+                        }
                     }
 
                     if (Y.getNBTTag() != null && !Y.getNBTTag().isEmpty()) {
@@ -390,6 +396,34 @@ public class LootGroupsHandler {
             }
         }
         return tSuccess;
+    }
+
+    /// Enables MaterialLib name resolution and runs it over the loaded config. The config loads at preInit, where
+    /// MaterialLib's registries are not yet readable, so this runs from init.
+    public void resolveMaterialLibNames() {
+        _mMaterialLibReady = true;
+        resolveMaterialLibNames(_mLootGroups);
+    }
+
+    private void resolveMaterialLibNames(LootGroups pLootGroups) {
+        if (!_mMaterialLibReady) return;
+
+        int tResolved = 0;
+        int tInvalid = 0;
+        for (LootGroup tGrp : pLootGroups.getLootTable()) {
+            for (Drop tDr : tGrp.getDrops()) {
+                if (!tDr.isMaterialLibDrop()) continue;
+                if (tDr.getResolvedItemName() != null) tResolved++;
+                else tInvalid++;
+            }
+        }
+
+        if (tResolved + tInvalid > 0) _mLogger.info(
+                String.format(
+                        "%s: resolved %d MaterialLib entries (%d invalid)",
+                        EnhancedLootBags.MODNAME,
+                        tResolved,
+                        tInvalid));
     }
 
     /**
@@ -424,6 +458,7 @@ public class LootGroupsHandler {
                     _mLootGroups = tNewItemCollection;
                     _mBufferedLootGroups.clear(); // Also empty the buffered groups; As we might've gotten some
                     // group-relationship changs
+                    resolveMaterialLibNames(_mLootGroups);
                 }
                 _mClientSideLootGroups = tNewItemCollection;
 
