@@ -144,8 +144,8 @@ public class LootGroups {
         /// A single item a lootbag can yield.
         ///
         /// `ItemName` accepts the `ml:<Material>:<shapeToken>` form beside `modid:item[:meta]`; see
-        /// [MaterialLibNames]. The MaterialLib form stays verbatim in the attribute so a marshal writes back what the
-        /// config author wrote, and the concrete name it stands for is resolved once on first use.
+        /// [MaterialLibNames]. The MaterialLib form is kept verbatim so a marshal round-trips the config author's
+        /// text. The name it stands for is resolved once, on first use.
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType
         public static class Drop {

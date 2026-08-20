@@ -366,8 +366,8 @@ public class LootGroupsHandler {
                 }
 
                 for (Drop Y : X.getDrops()) {
-                    // A MaterialLib name cannot be looked up during the preInit load; resolveMaterialLibNames
-                    // reports on those once MaterialLib's registries are readable.
+                    // MaterialLib names cannot resolve during the preInit load; resolveMaterialLibNames reports on
+                    // them instead.
                     if (!Y.isMaterialLibDrop() || _mMaterialLibReady) {
                         String tItemName = Y.getResolvedItemName();
                         if (tItemName == null || ItemDescriptor.fromString(tItemName) == null) {
@@ -398,8 +398,8 @@ public class LootGroupsHandler {
         return tSuccess;
     }
 
-    /// Enables MaterialLib name resolution and runs it over the loaded config. The config loads at preInit, where
-    /// MaterialLib's registries are not yet readable, so this runs from init.
+    /// Enables MaterialLib name resolution and runs it over the loaded config. Call from init or later, once
+    /// MaterialLib's registries are readable.
     public void resolveMaterialLibNames() {
         _mMaterialLibReady = true;
         resolveMaterialLibNames(_mLootGroups);

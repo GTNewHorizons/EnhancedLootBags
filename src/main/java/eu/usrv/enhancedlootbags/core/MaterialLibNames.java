@@ -1,5 +1,7 @@
 package eu.usrv.enhancedlootbags.core;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.item.ItemStack;
 
 import com.ruling_0.materiallib.api.StackResolver;
@@ -8,17 +10,18 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 
 /// Rewrites the `ml:<Material>:<shapeToken>` form a LootBags.xml drop accepts into the `modid:item[:meta]` form
-/// [eu.usrv.yamcore.auxiliary.ItemDescriptor] parses. A drop names the material and shape because MaterialLib item
-/// metadata is a material index that shifts whenever the material set changes.
+/// [eu.usrv.yamcore.auxiliary.ItemDescriptor] parses. A drop names the material and shape: MaterialLib item metadata
+/// is a material index that shifts whenever the material set changes.
 ///
-/// This is the only class touching MaterialLib, so it stays unloaded while MaterialLib is absent. Its lookups read
-/// MaterialLib's resolved registries and run no earlier than init.
+/// MaterialLib is touched only here, so the class stays unloaded while MaterialLib is absent. Lookups read
+/// MaterialLib's resolved registries and are valid no earlier than init.
 public final class MaterialLibNames {
 
     private MaterialLibNames() {}
 
-    /// The `modid:item[:meta]` name of the stack `pItemName` names, or null when it is malformed or names nothing
-    /// MaterialLib serves.
+    /// The `modid:item[:meta]` name for `pItemName`, or null when it is malformed or names nothing MaterialLib
+    /// serves.
+    @Nullable
     public static String canonicalize(String pItemName) {
         String[] tParts = pItemName.split(":");
         if (tParts.length != 3) {
