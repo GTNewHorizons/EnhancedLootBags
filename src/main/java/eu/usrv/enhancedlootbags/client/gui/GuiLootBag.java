@@ -29,8 +29,8 @@ public class GuiLootBag extends GuiContainer {
     // private final HashMap<Integer, Integer> mLocMapRow;
     public static int GUI_RowCount = 9;
     public static int GUI_ColCount = 12;
-    public static int GUI_SizeX = 237;
-    public static int GUI_SizeY = 255;
+    public static int GUI_SizeX = 238;
+    public static int GUI_SizeY = 256;
 
     public GuiLootBag(InventoryPlayer pInventoryPlayer, int pLootGroupMeta) {
         super(new ContainerLootBag(pInventoryPlayer, pLootGroupMeta));
