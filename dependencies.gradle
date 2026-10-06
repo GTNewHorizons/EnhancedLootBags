@@ -5,5 +5,5 @@ dependencies {
 
     implementation("com.github.GTNewHorizons:NotEnoughItems:2.8.86-GTNH:dev")
 
-    compileOnly("com.ruling_0:MaterialLib:0.18.0-mu:dev")
+    compileOnly("com.ruling_0:MaterialLib:0.19.0-mu:dev")
 }
