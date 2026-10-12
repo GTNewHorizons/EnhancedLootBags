@@ -16,6 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -44,6 +45,7 @@ public class EnhancedLootBags {
 
     public static CreativeTabs ELBCreativeTab;
     public static final String MODID = "enhancedlootbags";
+    public static final String MATERIALLIB_MODID = "materiallib";
     public static final String VERSION = ELBTags.VERSION;
     public static final String MODNAME = "Enhanced LootBags";
     public static final String NICEFOLDERNAME = "EnhancedLootBags";
@@ -91,6 +93,8 @@ public class EnhancedLootBags {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        if (Loader.isModLoaded(MATERIALLIB_MODID)) LootGroupHandler.resolveMaterialLibNames();
+
         FMLCommonHandler.instance().bus().register(AdminLogonErrors);
         FMLCommonHandler.instance().bus().register(LootGroupHandler);
         MinecraftForge.EVENT_BUS.register(LootGroupHandler);
