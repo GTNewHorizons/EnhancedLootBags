@@ -21,3 +21,28 @@ enhancedlootbags.nei.recipe.weight_accumulated=Accumulated weight: %s
 enhancedlootbags.nei.recipe.chance=Drop %% (F0/1/2/3): %s | %s | %s | %s
 
 enhancedlootbags.dreamcraft.enchantment_tip=§3Craft with a Fortune III book and a component to improve!
+
+enhancedlootbags.string.stats_opened=§7Opened: §f%s §8(%s - statistics)
+enhancedlootbags.key.category=Enhanced LootBags
+enhancedlootbags.key.open_stats=LootBag statistics
+
+enhancedlootbags.gui.stats.title=LootBag Statistics
+enhancedlootbags.gui.stats.total_opened=%s bags opened
+enhancedlootbags.gui.stats.search=Search...
+enhancedlootbags.gui.stats.all_bags=All LootBags
+enhancedlootbags.gui.stats.unknown_bag=Unknown LootBag #%s
+enhancedlootbags.gui.stats.summary=Opened %s   Items %s   Different %s
+enhancedlootbags.gui.stats.never_opened=You have not opened this LootBag yet
+enhancedlootbags.gui.stats.nothing_dropped=Nothing has dropped from this LootBag yet
+enhancedlootbags.gui.stats.filter_all=Show: All
+enhancedlootbags.gui.stats.filter_opened=Show: Opened only
+enhancedlootbags.gui.stats.sort_amount=Sort: Amount
+enhancedlootbags.gui.stats.sort_times=Sort: Drop count
+enhancedlootbags.gui.stats.sort_name=Sort: Name
+enhancedlootbags.gui.stats.tip_received=§7Received: §f%s items
+enhancedlootbags.gui.stats.tip_times=§7Dropped: §f%s times
+enhancedlootbags.gui.stats.tip_per_bag=§7Average per bag: §f%s
+enhancedlootbags.gui.stats.tip_share=§7Share of all drops: §f%s
+enhancedlootbags.gui.stats.section_main=Loot
+enhancedlootbags.gui.stats.section_trash=Trash
+enhancedlootbags.gui.stats.luck=Luck:

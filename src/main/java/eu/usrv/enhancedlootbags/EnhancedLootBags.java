@@ -23,11 +23,13 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import eu.usrv.enhancedlootbags.config.ELBConfig;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
+import eu.usrv.enhancedlootbags.core.stats.LootBagStatsHandler;
 import eu.usrv.enhancedlootbags.integration.nei.IMCForNEI;
 import eu.usrv.enhancedlootbags.net.ELBDispatcher;
 import eu.usrv.enhancedlootbags.proxy.CommonProxy;
@@ -48,6 +50,7 @@ public class EnhancedLootBags {
     public static final String MODNAME = "Enhanced LootBags";
     public static final String NICEFOLDERNAME = "EnhancedLootBags";
     public static LootGroupsHandler LootGroupHandler = null;
+    public static LootBagStatsHandler statsHandler = null;
     public static ELBConfig ELBCfg = null;
     public static IngameErrorLog AdminLogonErrors = null;
     public static LogHelper Logger = new LogHelper(MODID);
@@ -77,6 +80,8 @@ public class EnhancedLootBags {
         LootGroupHandler.LoadConfig();
         LootGroupHandler.registerBagItem();
 
+        statsHandler = new LootBagStatsHandler();
+
         ELBCreativeTab = new CreativeTabs("ELBTab") {
 
             @Override
@@ -94,9 +99,13 @@ public class EnhancedLootBags {
         FMLCommonHandler.instance().bus().register(AdminLogonErrors);
         FMLCommonHandler.instance().bus().register(LootGroupHandler);
         MinecraftForge.EVENT_BUS.register(LootGroupHandler);
+        FMLCommonHandler.instance().bus().register(statsHandler);
+        MinecraftForge.EVENT_BUS.register(statsHandler);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 
         IMCForNEI.IMCSender();
+
+        proxy.init();
     }
 
     /**
@@ -107,5 +116,10 @@ public class EnhancedLootBags {
     @EventHandler
     public void serverLoad(FMLServerStartingEvent pEvent) {
         pEvent.registerServerCommand(new LootBagCommand());
+    }
+
+    @EventHandler
+    public void serverStopped(FMLServerStoppedEvent event) {
+        statsHandler.unload();
     }
 }

@@ -11,6 +11,7 @@ package eu.usrv.enhancedlootbags.net;
 
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.net.msg.LootBagClientSyncMessage;
+import eu.usrv.enhancedlootbags.net.msg.LootBagStatsSyncMessage;
 import eu.usrv.yamcore.network.PacketDispatcher;
 
 public class ELBDispatcher extends PacketDispatcher {
@@ -22,5 +23,6 @@ public class ELBDispatcher extends PacketDispatcher {
     @Override
     public void registerPackets() {
         registerMessage(LootBagClientSyncMessage.LootBagClientSyncMessageHandler.class, LootBagClientSyncMessage.class);
+        registerMessage(LootBagStatsSyncMessage.LootBagStatsSyncMessageHandler.class, LootBagStatsSyncMessage.class);
     }
 }

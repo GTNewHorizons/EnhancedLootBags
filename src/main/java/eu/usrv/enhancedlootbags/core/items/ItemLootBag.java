@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -33,9 +34,13 @@ import cpw.mods.fml.relauncher.SideOnly;
 import eu.usrv.enhancedlootbags.EnhancedLootBags;
 import eu.usrv.enhancedlootbags.GuiHandler;
 import eu.usrv.enhancedlootbags.StatHelper;
+import eu.usrv.enhancedlootbags.client.ClientLootBagStats;
+import eu.usrv.enhancedlootbags.client.LootBagStatsClientHandler;
 import eu.usrv.enhancedlootbags.core.LootGroupsHandler;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup;
 import eu.usrv.enhancedlootbags.core.serializer.LootGroups.LootGroup.Drop;
+import eu.usrv.enhancedlootbags.core.stats.LootBagStats.GroupStats;
+import eu.usrv.enhancedlootbags.core.stats.LootBagStatsHandler.OpenRecord;
 import eu.usrv.yamcore.auxiliary.LogHelper;
 import eu.usrv.yamcore.auxiliary.PlayerChatHelper;
 
@@ -138,10 +143,11 @@ public class ItemLootBag extends Item {
                 int q = tGrp.getMinItems();
                 if (tGrp.getMaxItems() > tGrp.getMinItems()) q = pWorld.rand.nextInt(tGrp.getMaxItems()) + 1;
 
+                OpenRecord openRecord = new OpenRecord();
                 // _mLogger.info(String.format("MinMax %d / %d", tGrp.mMinItems, tGrp.mMaxItems));
                 while (q > 0) {
                     // _mLogger.info(String.format("q: %d", q));
-                    List<ItemStack> isList = getRandomLootItems(pPlayer, tGrp);
+                    List<ItemStack> isList = getRandomLootItems(pPlayer, tGrp, openRecord);
                     if (isList.isEmpty()) {
                         PlayerChatHelper.SendNotifyWarning(pPlayer, StatHelper.get("string.try_again"));
                         return pStack;
@@ -172,6 +178,7 @@ public class ItemLootBag extends Item {
                         0.75F,
                         1.0F);
                 pStack.stackSize -= 1;
+                EnhancedLootBags.statsHandler.recordOpening(pPlayer, tGroupID, openRecord);
             } else {
                 PlayerChatHelper.SendNotifyWarning(pPlayer, StatHelper.get("string.sorry_damaged"));
             }
@@ -179,7 +186,7 @@ public class ItemLootBag extends Item {
         return pStack;
     }
 
-    private List<ItemStack> getRandomLootItems(EntityPlayer player, LootGroup pGrp) {
+    private List<ItemStack> getRandomLootItems(EntityPlayer player, LootGroup pGrp, OpenRecord openRecord) {
         List<ItemStack> tReturnList = new ArrayList<ItemStack>();
         List<Drop> tPendingDrops = new ArrayList<Drop>();
 
@@ -246,6 +253,7 @@ public class ItemLootBag extends Item {
                                         td.getItemName()));
                         continue;
                     }
+                    openRecord.add(td, tStackAll);
                     while (tStackAll.stackSize > tStackAll.getMaxStackSize())
                         tReturnList.add(tStackAll.splitStack(tStackAll.getMaxStackSize()));
                     tReturnList.add(tStackAll);
@@ -285,5 +293,13 @@ public class ItemLootBag extends Item {
                                 (tFortuneLevel == 3 ? 100 : 33 * tFortuneLevel)));
             }
         }
+
+        GroupStats groupStats = ClientLootBagStats.getStats().getGroup(pItemStack.getItemDamage());
+        int keyCode = LootBagStatsClientHandler.KEY_OPEN_STATS.getKeyCode();
+        pTooltipList.add(
+                String.format(
+                        StatHelper.get("string.stats_opened"),
+                        groupStats == null ? 0 : groupStats.getOpened(),
+                        keyCode == 0 ? "/lootbagstats" : GameSettings.getKeyDisplayString(keyCode)));
     }
 }

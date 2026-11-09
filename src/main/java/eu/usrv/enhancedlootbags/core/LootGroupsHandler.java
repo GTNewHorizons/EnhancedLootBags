@@ -228,6 +228,36 @@ public class LootGroupsHandler {
         return null;
     }
 
+    public boolean isTrashDrop(int groupID, String dropID) {
+        LootGroup group = getGroupByID(groupID);
+        if (group == null) {
+            return false;
+        }
+        if (group.getTrashGroup() == groupID) {
+            return true;
+        }
+        if (!group.getCombineWithTrash()) {
+            return false;
+        }
+
+        for (Drop drop : group.getDrops()) {
+            if (drop.getIdentifier().equals(dropID)) {
+                return false;
+            }
+        }
+
+        LootGroup trashGroup = getGroupByID(group.getTrashGroup());
+        if (trashGroup == null) {
+            return false;
+        }
+        for (Drop drop : trashGroup.getDrops()) {
+            if (drop.getIdentifier().equals(dropID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public LootGroup getGroupByID(int pGroupID) {
         for (LootGroup tGrp : _mLootGroups.getLootTable()) if (tGrp.getGroupID() == pGroupID) return tGrp;
         return null;
@@ -292,8 +322,12 @@ public class LootGroupsHandler {
     public boolean reload() {
         boolean tState = ReloadLootGroups("");
         if (_mInitialized) {
-            if (tState) sendClientUpdate();
-            else _mLogger.error("[LootBags] Reload of LootBag file failed. Not sending client update");
+            if (tState) {
+                sendClientUpdate();
+                EnhancedLootBags.statsHandler.onLootConfigReloaded();
+            } else {
+                _mLogger.error("[LootBags] Reload of LootBag file failed. Not sending client update");
+            }
         }
         return tState;
     }

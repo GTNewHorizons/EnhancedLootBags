@@ -11,14 +11,25 @@ package eu.usrv.enhancedlootbags.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ClientCommandHandler;
 
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
+import eu.usrv.enhancedlootbags.client.LootBagStatsClientHandler;
 
 public class ClientProxy extends CommonProxy {
 
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         return null;
+    }
+
+    @Override
+    public void init() {
+        ClientRegistry.registerKeyBinding(LootBagStatsClientHandler.KEY_OPEN_STATS);
+        FMLCommonHandler.instance().bus().register(new LootBagStatsClientHandler());
+        ClientCommandHandler.instance.registerCommand(new LootBagStatsClientHandler.StatsCommand());
     }
 
     @Override

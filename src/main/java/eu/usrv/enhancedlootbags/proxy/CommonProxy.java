@@ -26,6 +26,8 @@ public class CommonProxy implements IGuiHandler {
         return null;
     }
 
+    public void init() {}
+
     public World getClientWorld() {
         return null;
     }
